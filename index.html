@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Kulzzy Radio Navigation</title>
+
+<style>
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+
+    margin:0;
+    padding:0;
+
+    width:100%;
+    min-width:100%;
+
+    min-height:100%;
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    background:transparent;
+
+}
+
+body{
+
+    overflow-x:hidden;
+    overflow-y:visible;
+
+}
+
+
+/* =====================================================
+   FLOATING NAVIGATION
+===================================================== */
+
+#kulzzyNav{
+
+    position:fixed;
+
+    top:8px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:calc(100% - 16px);
+
+    max-width:520px;
+
+    height:48px;
+
+    background:rgba(7,21,47,0.98);
+
+    border:1px solid rgba(255,215,0,0.45);
+
+    border-radius:14px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-around;
+
+    padding:4px;
+
+    z-index:999999999;
+
+    box-shadow:
+        0 4px 18px rgba(0,0,0,0.25);
+
+}
+
+
+/* =====================================================
+   NAVIGATION BUTTONS
+===================================================== */
+
+.kulzzyNavBtn{
+
+    flex:1;
+
+    width:100%;
+
+    height:40px;
+
+    border:none;
+
+    background:transparent;
+
+    color:white;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+
+    transition:
+        background 0.12s ease,
+        color 0.12s ease,
+        transform 0.08s ease;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+.kulzzyNavBtn:hover{
+
+    background:
+        rgba(255,215,0,0.15);
+
+    color:#ffd700;
+
+}
+
+.kulzzyNavBtn:active{
+
+    transform:scale(0.94);
+
+}
+
+.kulzzyNavBtn.active{
+
+    background:#ffd700;
+
+    color:#07152f;
+
+}
+
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+
+#kulzzyContent{
+
+    width:100% !important;
+
+    max-width:none !important;
+
+    min-width:0;
+
+    margin:0 !important;
+
+    padding:75px 0 230px !important;
+
+    box-sizing:border-box;
+
+    overflow:visible !important;
+
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+.kulzzySection{
+
+    display:none;
+
+    width:100% !important;
+
+    max-width:none !important;
+
+    min-width:0;
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    position:relative;
+
+    left:0;
+
+    right:0;
+
+    box-sizing:border-box;
+
+    overflow:visible !important;
+
+}
+
+.kulzzySection.active{
+
+    display:block;
+
+}
+
+
+/* =====================================================
+   PUBLISHED FIREBASE CONTENT
+===================================================== */
+
+.kulzzyPublishedContent{
+
+    display:block;
+
+    width:100% !important;
+
+    max-width:none !important;
+
+    min-width:0;
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    overflow:visible !important;
+
+}
+
+
+/*
+   IMPORTANT:
+   Do NOT force every child to 100%.
+   Some Firebase pages contain their own
+   layouts, buttons and iframes.
+*/
+
+.kulzzyPublishedContent > div{
+
+    width:100%;
+
+    max-width:none;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+
+/* =====================================================
+   IMAGES
+===================================================== */
+
+.kulzzyPublishedContent img{
+
+    max-width:100%;
+
+    height:auto;
+
+}
+
+
+/* =====================================================
+   VIDEOS
+===================================================== */
+
+.kulzzyPublishedContent video{
+
+    max-width:100%;
+
+    height:auto;
+
+}
+
+
+/* =====================================================
+   IFRAMES
+===================================================== */
+
+.kulzzyPublishedContent iframe{
+
+    display:block;
+
+    width:100% !important;
+
+    max-width:100% !important;
+
+    border:0;
+
+}
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+.kulzzyPublishedContent table{
+
+    max-width:100%;
+
+}
+
+
+/* =====================================================
+   MORE PAGE LIST
+===================================================== */
+
+#kulzzyMorePagesMenu{
+
+    width:100%;
+
+    max-width:none;
+
+    margin:0;
+
+    padding:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   MORE PAGE BUTTON
+===================================================== */
+
+.kulzzyMorePageButton{
+
+    width:100%;
+
+    border:1px solid
+        rgba(255,215,0,0.35);
+
+    border-radius:12px;
+
+    padding:14px 15px;
+
+    background:#07152f;
+
+    color:white;
+
+    text-align:left;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.08s ease;
+
+    -webkit-tap-highlight-color:transparent;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.kulzzyMorePageButton:hover{
+
+    background:
+        rgba(255,215,0,0.12);
+
+    color:#ffd700;
+
+}
+
+.kulzzyMorePageButton:active{
+
+    transform:scale(0.98);
+
+}
+
+.kulzzyMorePageButton.active{
+
+    background:#ffd700;
+
+    color:#07152f;
+
+}
+
+
+/* =====================================================
+   MORE PAGE TITLE ART
+===================================================== */
+
+.kulzzyMorePageIcon{
+
+    width:38px;
+
+    height:38px;
+
+    min-width:38px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+        rgba(255,215,0,0.12);
+
+    border:1px solid
+        rgba(255,215,0,0.35);
+
+    border-radius:10px;
+
+    font-size:21px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   MORE PAGE TITLE
+===================================================== */
+
+.kulzzyMorePageTitle{
+
+    flex:1;
+
+    min-width:0;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   MORE PAGE CONTENT
+===================================================== */
+
+#kulzzyMorePageContent{
+
+    width:100%;
+
+    max-width:none;
+
+    margin:15px 0 0;
+
+    padding:0;
+
+}
+
+
+/* =====================================================
+   MORE PAGE CONTENT BOX
+===================================================== */
+
+.kulzzyMorePageContentBox{
+
+    width:100%;
+
+    max-width:none;
+
+    margin:0;
+
+    padding:0;
+
+    background:transparent;
+
+    color:inherit;
+
+    border:none;
+
+    border-radius:0;
+
+    overflow:visible;
+
+    line-height:1.6;
+
+}
+
+
+/* =====================================================
+   MORE PAGE ELEMENTS
+===================================================== */
+
+.kulzzyMorePageContentBox *{
+
+    box-sizing:border-box;
+
+    max-width:100%;
+
+}
+
+.kulzzyMorePageContentBox img{
+
+    max-width:100% !important;
+
+    height:auto !important;
+
+}
+
+.kulzzyMorePageContentBox video{
+
+    max-width:100% !important;
+
+    height:auto !important;
+
+}
+
+.kulzzyMorePageContentBox iframe{
+
+    display:block;
+
+    width:100% !important;
+
+    max-width:100% !important;
+
+    border:0;
+
+}
+
+.kulzzyMorePageContentBox table{
+
+    width:100%;
+
+    max-width:100%;
+
+    overflow:auto;
+
+    display:block;
+
+}
+
+.kulzzyMorePageContentBox h1,
+.kulzzyMorePageContentBox h2,
+.kulzzyMorePageContentBox h3,
+.kulzzyMorePageContentBox h4{
+
+    max-width:100%;
+
+}
+
+.kulzzyMorePageContentBox p{
+
+    line-height:1.7;
+
+}
+
+.kulzzyMorePageContentBox a{
+
+    word-break:break-word;
+
+}
+
+.kulzzyMorePageContentBox ul,
+.kulzzyMorePageContentBox ol{
+
+    padding-left:25px;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:360px){
+
+    #kulzzyNav{
+
+        width:calc(100% - 8px);
+
+        top:5px;
+
+        height:44px;
+
+    }
+
+
+    .kulzzyNavBtn{
+
+        height:36px;
+
+        font-size:9px;
+
+    }
+
+
+    #kulzzyContent{
+
+        padding-top:62px !important;
+
+    }
+
+}
+
+
+/* =====================================================
+   NORMAL PHONES
+===================================================== */
+
+@media(min-width:361px)
+and (max-width:600px){
+
+    .kulzzyNavBtn{
+
+        font-size:10px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     FLOATING NAVIGATION
+===================================================== -->
+
+<nav id="kulzzyNav">
+
+    <button
+        type="button"
+        class="kulzzyNavBtn active"
+        data-section="home">
+
+        Home
+
+    </button>
+
+
+    <!-- =================================================
+         EVENT BUTTON
+         INTERNAL SECTION NAME REMAINS "request"
+         ONLY THE DISPLAY NAME CHANGES
+    ================================================== -->
+
+    <button
+        type="button"
+        class="kulzzyNavBtn"
+        data-section="request">
+
+        <span id="kulzzyRequestButtonName">
+            👑 FACE OF KULZZY RADIO
+        </span>
+
+    </button>
+
+
+    <button
+        type="button"
+        class="kulzzyNavBtn"
+        data-section="wishes">
+
+        Wishes
+
+    </button>
+
+
+    <button
+        type="button"
+        class="kulzzyNavBtn"
+        data-section="market">
+
+        Market
+
+    </button>
+
+
+    <button
+        type="button"
+        class="kulzzyNavBtn"
+        data-section="more">
+
+        More
+
+    </button>
+
+</nav>
+
+
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
+<div id="kulzzyContent">
+
+
+    <!-- HOME -->
+
+    <section
+        id="kulzzy-home"
+        class="kulzzySection active">
+
+        <div
+            id="kulzzyPublished-home"
+            class="kulzzyPublishedContent">
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         EVENT / REQUEST
+         INTERNAL NAME STAYS "request"
+    ================================================== -->
+
+    <section
+        id="kulzzy-request"
+        class="kulzzySection">
+
+        <div
+            id="kulzzyPublished-request"
+            class="kulzzyPublishedContent">
+        </div>
+
+    </section>
+
+
+    <!-- WISHES -->
+
+    <section
+        id="kulzzy-wishes"
+        class="kulzzySection">
+
+        <div
+            id="kulzzyPublished-wishes"
+            class="kulzzyPublishedContent">
+        </div>
+
+    </section>
+
+
+    <!-- MARKET -->
+
+    <section
+        id="kulzzy-market"
+        class="kulzzySection">
+
+        <div
+            id="kulzzyPublished-market"
+            class="kulzzyPublishedContent">
+        </div>
+
+    </section>
+
+
+    <!-- MORE -->
+
+    <section
+        id="kulzzy-more"
+        class="kulzzySection">
+
+        <div
+            id="kulzzyMorePagesMenu">
+        </div>
+
+
+        <div
+            id="kulzzyMorePageContent">
+        </div>
+
+    </section>
+
+
+</div>
+
+
+<!-- =====================================================
+     FIREBASE
+===================================================== -->
+
+<script type="module">
+
+/* =====================================================
+   FIREBASE IMPORTS
+===================================================== */
+
+import {
+    initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+    getDatabase,
+    ref,
+    get,
+    onValue
+}
+from
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+/* =====================================================
+   FIREBASE CONFIGURATION
+===================================================== */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyBH85NGWsSAK5cubbPdnmunwYZFZpj_CB0",
+
+    authDomain:
+        "kulzzy-radio-chat.firebaseapp.com",
+
+    databaseURL:
+        "https://kulzzy-radio-chat-default-rtdb.europe-west1.firebasedatabase.app",
+
+    projectId:
+        "kulzzy-radio-chat",
+
+    storageBucket:
+        "kulzzy-radio-chat.firebasestorage.app",
+
+    messagingSenderId:
+        "510100635134",
+
+    appId:
+        "1:510100635134:web:9d3b2e983eb6e9a385d4af"
+
+};
+
+
+/* =====================================================
+   INITIALIZE FIREBASE
+===================================================== */
+
+let app = null;
+
+let db = null;
+
+
+try{
+
+    app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    db =
+        getDatabase(
+            app
+        );
+
+}
+
+catch(error){
+
+    console.error(
+        "Firebase initialization error:",
+        error
+    );
+
+}
+
+
+/* =====================================================
+   👑 DYNAMIC EVENT BUTTON NAME
+===================================================== */
+
+const DEFAULT_EVENT_BUTTON_NAME =
+    "👑 FACE OF KULZZY RADIO";
+
+
+const eventButtonNameRef =
+    db
+    ? ref(
+        db,
+        "kulzzyNavigation/eventName"
+      )
+    : null;
+
+
+const eventButton =
+    document.getElementById(
+        "kulzzyRequestButtonName"
+    );
+
+
+function updateEventButtonName(
+    name
+){
+
+    if(!eventButton){
+
+        return;
+
+    }
+
+
+    if(
+
+        typeof name !== "string"
+
+        ||
+
+        !name.trim()
+
+    ){
+
+        eventButton.textContent =
+            DEFAULT_EVENT_BUTTON_NAME;
+
+        return;
+
+    }
+
+
+    eventButton.textContent =
+        name.trim();
+
+}
+
+
+if(
+
+    db
+
+    &&
+
+    eventButtonNameRef
+
+){
+
+    onValue(
+
+        eventButtonNameRef,
+
+        function(snapshot){
+
+            updateEventButtonName(
+                snapshot.val()
+            );
+
+        },
+
+        function(error){
+
+            console.error(
+                "Event button Firebase error:",
+                error
+            );
+
+            updateEventButtonName(
+                DEFAULT_EVENT_BUTTON_NAME
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   NORMAL SECTIONS
+===================================================== */
+
+const normalSections = [
+
+    "home",
+    "request",
+    "wishes",
+    "market"
+
+];
+
+
+/* =====================================================
+   MEMORY CACHE
+===================================================== */
+
+const sectionCache =
+    Object.create(null);
+
+
+const sectionLoading =
+    Object.create(null);
+
+
+/* =====================================================
+   MORE CACHE
+===================================================== */
+
+let morePagesLoaded = false;
+
+let morePagesLoading = null;
+
+let morePagesData = [];
+
+
+/* =====================================================
+   GET PAGE HTML
+===================================================== */
+
+function getPageHTML(page){
+
+    if(!page){
+
+        return "";
+
+    }
+
+
+    if(
+
+        typeof page.html === "string" &&
+
+        page.html.trim()
+
+    ){
+
+        return page.html;
+
+    }
+
+
+    const possibleFields = [
+
+        "content",
+        "writeUp",
+        "writeup",
+        "body",
+        "description",
+        "pageContent",
+        "htmlContent"
+
+    ];
+
+
+    for(
+        const field of possibleFields
+    ){
+
+        if(
+
+            typeof page[field] === "string" &&
+
+            page[field].trim()
+
+        ){
+
+            return page[field];
+
+        }
+
+    }
+
+
+    if(
+
+        page.blocks &&
+
+        typeof page.blocks === "object"
+
+    ){
+
+        const blocks =
+
+            Object.keys(
+                page.blocks
+            )
+
+            .map(function(id){
+
+                const block =
+                    page.blocks[id] || {};
+
+
+                return {
+
+                    id:id,
+
+                    html:
+
+                        block.html ||
+
+                        block.content ||
+
+                        block.writeUp ||
+
+                        "",
+
+                    order:
+
+                        typeof block.order === "number"
+
+                        ? block.order
+
+                        : 0
+
+                };
+
+            })
+
+            .filter(function(block){
+
+                return (
+
+                    typeof block.html ===
+                    "string" &&
+
+                    block.html.trim()
+
+                );
+
+            })
+
+            .sort(function(a,b){
+
+                return a.order - b.order;
+
+            });
+
+
+        if(blocks.length){
+
+            return blocks
+
+                .map(function(block){
+
+                    return block.html;
+
+                })
+
+                .join("\n\n");
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   EXECUTE PUBLISHED SCRIPTS
+===================================================== */
+
+function executePublishedScripts(
+    container
+){
+
+    if(!container){
+
+        return;
+
+    }
+
+
+    const scripts =
+        container.querySelectorAll(
+            "script"
+        );
+
+
+    scripts.forEach(function(
+        oldScript
+    ){
+
+        const newScript =
+            document.createElement(
+                "script"
+            );
+
+
+        Array.from(
+            oldScript.attributes
+        )
+
+        .forEach(function(attribute){
+
+            newScript.setAttribute(
+
+                attribute.name,
+
+                attribute.value
+
+            );
+
+        });
+
+
+        newScript.textContent =
+            oldScript.textContent;
+
+
+        if(oldScript.parentNode){
+
+            oldScript.parentNode
+                .replaceChild(
+                    newScript,
+                    oldScript
+                );
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   DISPLAY NORMAL CONTENT
+===================================================== */
+
+function displayNormalContent(
+    section,
+    html
+){
+
+    const container =
+
+        document.getElementById(
+
+            "kulzzyPublished-" +
+            section
+
+        );
+
+
+    if(!container){
+
+        return;
+
+    }
+
+
+    if(!html || !html.trim()){
+
+        container.innerHTML = "";
+
+        sectionCache[section] = "";
+
+        return;
+
+    }
+
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    wrapper.style.width = "100%";
+
+    wrapper.style.maxWidth = "none";
+
+    wrapper.style.margin = "0";
+
+    wrapper.style.padding = "0";
+
+    wrapper.innerHTML =
+        html;
+
+
+    container.innerHTML = "";
+
+
+    container.appendChild(
+        wrapper
+    );
+
+
+    executePublishedScripts(
+        wrapper
+    );
+
+
+    sectionCache[section] =
+        container.innerHTML;
+
+}
+
+
+/* =====================================================
+   LOAD NORMAL SECTION
+===================================================== */
+
+async function loadNormalSection(
+    section
+){
+
+    if(
+        !normalSections.includes(
+            section
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const container =
+
+        document.getElementById(
+
+            "kulzzyPublished-" +
+            section
+
+        );
+
+
+    if(!container){
+
+        return;
+
+    }
+
+
+    if(
+        Object.prototype.hasOwnProperty.call(
+            sectionCache,
+            section
+        )
+    ){
+
+        if(
+            container.innerHTML === ""
+            &&
+            sectionCache[section]
+        ){
+
+            container.innerHTML =
+                sectionCache[section];
+
+        }
+
+        return;
+
+    }
+
+
+    if(
+        sectionLoading[section]
+    ){
+
+        return sectionLoading[section];
+
+    }
+
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    sectionLoading[section] =
+
+        get(
+
+            ref(
+
+                db,
+
+                "kulzzyContent/" +
+                section
+
+            )
+
+        )
+
+        .then(function(snapshot){
+
+            if(
+                !snapshot.exists()
+            ){
+
+                container.innerHTML = "";
+
+                sectionCache[section] = "";
+
+                return;
+
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            const html =
+                getPageHTML(
+                    data
+                );
+
+
+            displayNormalContent(
+                section,
+                html
+            );
+
+        })
+
+        .catch(function(error){
+
+            console.error(
+                "Firebase section error:",
+                section,
+                error
+            );
+
+        })
+
+        .finally(function(){
+
+            delete sectionLoading[
+                section
+            ];
+
+        });
+
+
+    return sectionLoading[section];
+
+}
+
+
+/* =====================================================
+   OPEN SECTION
+===================================================== */
+
+function openSection(
+    section,
+    button
+){
+
+    try{
+
+        localStorage.setItem(
+            "kulzzyLastSection",
+            section
+        );
+
+    }
+
+    catch(error){
+
+        console.log(
+            "Local storage unavailable"
+        );
+
+    }
+
+
+    /*
+       Hide all sections so only
+       the selected main section displays.
+    */
+
+    document
+        .querySelectorAll(
+            ".kulzzySection"
+        )
+        .forEach(function(item){
+
+            item.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    const target =
+        document.getElementById(
+            "kulzzy-" +
+            section
+        );
+
+
+    if(target){
+
+        target.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".kulzzyNavBtn"
+        )
+        .forEach(function(item){
+
+            item.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    if(button){
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if(
+        normalSections.includes(
+            section
+        )
+    ){
+
+        loadNormalSection(
+            section
+        );
+
+    }
+
+
+    if(
+        section === "more"
+    ){
+
+        loadMorePages();
+
+    }
+
+}
+
+
+/* =====================================================
+   PUBLIC NAVIGATION
+===================================================== */
+
+window.kulzzyOpen =
+
+    function(
+        section,
+        button
+    ){
+
+        openSection(
+            section,
+            button
+        );
+
+    };
+
+
+/* =====================================================
+   NAVIGATION EVENTS
+===================================================== */
+
+document
+    .querySelectorAll(
+        ".kulzzyNavBtn"
+    )
+    .forEach(function(button){
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                openSection(
+
+                    button.dataset.section,
+
+                    button
+
+                );
+
+            }
+        );
+
+    });
+
+
+/* =====================================================
+   RESTORE LAST OPENED SECTION
+===================================================== */
+
+let savedSection = null;
+
+
+try{
+
+    savedSection =
+        localStorage.getItem(
+            "kulzzyLastSection"
+        );
+
+}
+
+catch(error){
+
+    savedSection = null;
+
+}
+
+
+if(
+
+    savedSection &&
+
+    (
+        normalSections.includes(
+            savedSection
+        )
+        ||
+        savedSection === "more"
+    )
+
+){
+
+    const savedButton =
+        document.querySelector(
+            '.kulzzyNavBtn[data-section="' +
+            savedSection +
+            '"]'
+        );
+
+
+    if(savedButton){
+
+        openSection(
+            savedSection,
+            savedButton
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD MORE PAGES
+===================================================== */
+
+async function loadMorePages(){
+
+    const menu =
+
+        document.getElementById(
+            "kulzzyMorePagesMenu"
+        );
+
+
+    const content =
+
+        document.getElementById(
+            "kulzzyMorePageContent"
+        );
+
+
+    if(
+        !menu ||
+        !content
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        morePagesLoaded
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        morePagesLoading
+    ){
+
+        return morePagesLoading;
+
+    }
+
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    morePagesLoading =
+
+        get(
+
+            ref(
+
+                db,
+
+                "kulzzyMorePages"
+
+            )
+
+        )
+
+        .then(function(snapshot){
+
+            menu.innerHTML = "";
+
+            content.innerHTML = "";
+
+
+            if(
+                !snapshot.exists()
+            ){
+
+                morePagesLoaded = true;
+
+                return;
+
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            morePagesData =
+
+                Object.keys(
+                    data
+                )
+
+                .map(function(id){
+
+                    const page =
+                        data[id] || {};
+
+
+                    return {
+
+                        id:id,
+
+                        title:
+
+                            page.title ||
+
+                            page.name ||
+
+                            "Untitled Page",
+
+                        html:
+
+                            getPageHTML(
+                                page
+                            ),
+
+                        order:
+
+                            typeof page.order ===
+                            "number"
+
+                            ? page.order
+
+                            : 0
+
+                    };
+
+                })
+
+                .sort(function(a,b){
+
+                    return a.order -
+                           b.order;
+
+                });
+
+
+            const fragment =
+                document.createDocumentFragment();
+
+
+            morePagesData.forEach(
+                function(page){
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.type =
+                        "button";
+
+
+                    button.className =
+                        "kulzzyMorePageButton";
+
+
+                    /*
+                       Create title art/icon.
+                       The icon is selected from
+                       the page title.
+                    */
+
+                    const icon =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    icon.className =
+                        "kulzzyMorePageIcon";
+
+
+                    icon.textContent =
+                        getMorePageIcon(
+                            page.title
+                        );
+
+
+                    /*
+                       Create title text.
+                    */
+
+                    const title =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    title.className =
+                        "kulzzyMorePageTitle";
+
+
+                    title.textContent =
+                        page.title;
+
+
+                    button.appendChild(
+                        icon
+                    );
+
+
+                    button.appendChild(
+                        title
+                    );
+
+
+                    button.addEventListener(
+                        "click",
+                        function(){
+
+                            showMorePage(
+                                page,
+                                button
+                            );
+
+                        }
+                    );
+
+
+                    fragment.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+
+            menu.appendChild(
+                fragment
+            );
+
+
+            morePagesLoaded =
+                true;
+
+        })
+
+        .catch(function(error){
+
+            console.error(
+                "Firebase More pages error:",
+                error
+            );
+
+        })
+
+        .finally(function(){
+
+            morePagesLoading =
+                null;
+
+        });
+
+
+    return morePagesLoading;
+
+}
+
+
+/* =====================================================
+   MORE PAGE TITLE ICON
+===================================================== */
+
+function getMorePageIcon(title){
+
+    const text =
+        String(
+            title || ""
+        ).toLowerCase();
+
+
+    if(
+        text.includes("about")
+    ){
+
+        return "ℹ️";
+
+    }
+
+
+    if(
+        text.includes("contact")
+    ){
+
+        return "📞";
+
+    }
+
+
+    if(
+        text.includes("chat")
+    ){
+
+        return "💬";
+
+    }
+
+
+    if(
+        text.includes("radio")
+    ){
+
+        return "📻";
+
+    }
+
+
+    if(
+        text.includes("program")
+    ){
+
+        return "🎙️";
+
+    }
+
+
+    if(
+        text.includes("business")
+        ||
+        text.includes("market")
+        ||
+        text.includes("service")
+    ){
+
+        return "💼";
+
+    }
+
+
+    if(
+        text.includes("birthday")
+        ||
+        text.includes("celebration")
+        ||
+        text.includes("birth")
+    ){
+
+        return "🎂";
+
+    }
+
+
+    if(
+        text.includes("music")
+        ||
+        text.includes("song")
+    ){
+
+        return "🎵";
+
+    }
+
+
+    if(
+        text.includes("news")
+    ){
+
+        return "📰";
+
+    }
+
+
+    if(
+        text.includes("event")
+    ){
+
+        return "🎉";
+
+    }
+
+
+    if(
+        text.includes("photo")
+        ||
+        text.includes("picture")
+        ||
+        text.includes("gallery")
+    ){
+
+        return "🖼️";
+
+    }
+
+
+    if(
+        text.includes("video")
+    ){
+
+        return "🎬";
+
+    }
+
+
+    if(
+        text.includes("live")
+    ){
+
+        return "🔴";
+
+    }
+
+
+    if(
+        text.includes("request")
+    ){
+
+        return "📝";
+
+    }
+
+
+    if(
+        text.includes("wish")
+    ){
+
+        return "💝";
+
+    }
+
+
+    if(
+        text.includes("install")
+        ||
+        text.includes("app")
+    ){
+
+        return "📱";
+
+    }
+
+
+    return "📄";
+
+}
+
+
+/* =====================================================
+   SHOW MORE PAGE
+===================================================== */
+
+function showMorePage(
+    page,
+    button
+){
+
+    const content =
+
+        document.getElementById(
+            "kulzzyMorePageContent"
+        );
+
+
+    if(!content){
+
+        return;
+
+    }
+
+
+    /*
+       Remove active state from
+       every other More page.
+    */
+
+    document
+        .querySelectorAll(
+            ".kulzzyMorePageButton"
+        )
+        .forEach(function(item){
+
+            item.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    /*
+       Make only the clicked page active.
+    */
+
+    if(button){
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+
+    /*
+       Completely remove the
+       previously displayed page.
+    */
+
+    content.innerHTML = "";
+
+
+    const html =
+        getPageHTML(
+            page
+        );
+
+
+    if(
+        !html ||
+        !html.trim()
+    ){
+
+        return;
+
+    }
+
+
+    /*
+       Create only the selected
+       page content.
+    */
+
+    const pageBox =
+        document.createElement(
+            "div"
+        );
+
+
+    pageBox.className =
+        "kulzzyMorePageContentBox";
+
+
+    pageBox.innerHTML =
+        html;
+
+
+    content.appendChild(
+        pageBox
+    );
+
+
+    executePublishedScripts(
+        pageBox
+    );
+
+}
+
+
+/* =====================================================
+   START HOME
+===================================================== */
+
+if(db){
+
+    if(
+
+        !savedSection ||
+
+        !(
+            normalSections.includes(
+                savedSection
+            )
+            ||
+            savedSection === "more"
+        )
+
+    ){
+
+        loadNormalSection(
+            "home"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   QUIET BACKGROUND PRELOAD
+===================================================== */
+
+setTimeout(function(){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    [
+        "request",
+        "wishes",
+        "market"
+
+    ]
+
+    .forEach(function(section){
+
+        if(
+
+            !Object.prototype.hasOwnProperty.call(
+                sectionCache,
+                section
+            )
+
+        ){
+
+            loadNormalSection(
+                section
+            );
+
+        }
+
+    });
+
+},1200);
+
+
+</script>
+
+</body>
+
+</html>
