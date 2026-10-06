@@ -1,0 +1,3535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Kulzzy Radio Page Admin</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#07152f;
+    color:white;
+}
+
+body{
+    padding:15px;
+}
+
+*{
+    max-width:100%;
+}
+
+
+/* =========================================
+   MAIN
+========================================= */
+
+.kulzzyAdmin{
+
+    width:100%;
+
+    max-width:900px;
+
+    margin:0 auto;
+
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.kulzzyHeader{
+
+    background:#07152f;
+
+    border:1px solid rgba(255,215,0,0.45);
+
+    border-radius:15px;
+
+    padding:18px;
+
+    margin-bottom:15px;
+
+    text-align:center;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,0.25);
+
+}
+
+.kulzzyHeader h1{
+
+    margin:0 0 7px;
+
+    color:#ffd700;
+
+    font-size:24px;
+
+}
+
+.kulzzyHeader p{
+
+    margin:0;
+
+    color:#ddd;
+
+    font-size:13px;
+
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.kulzzyCard{
+
+    background:#0b1d3d;
+
+    border:1px solid
+        rgba(255,215,0,0.30);
+
+    border-radius:15px;
+
+    padding:18px;
+
+    margin-bottom:15px;
+
+}
+
+
+/* =========================================
+   LABEL
+========================================= */
+
+label{
+
+    display:block;
+
+    margin:0 0 7px;
+
+    color:#ffd700;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================
+   INPUT
+========================================= */
+
+input,
+select,
+textarea{
+
+    width:100%;
+
+    border:1px solid
+        rgba(255,215,0,0.30);
+
+    border-radius:10px;
+
+    background:#061329;
+
+    color:white;
+
+    outline:none;
+
+    font-family:Arial,Helvetica,sans-serif;
+
+}
+
+input,
+select{
+
+    height:45px;
+
+    padding:0 12px;
+
+}
+
+textarea{
+
+    min-height:280px;
+
+    resize:vertical;
+
+    padding:12px;
+
+    line-height:1.5;
+
+    font-size:14px;
+
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+
+    border-color:#ffd700;
+
+}
+
+
+/* =========================================
+   FIELD
+========================================= */
+
+.field{
+
+    margin-bottom:15px;
+
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.buttons{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+
+button{
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    font-size:13px;
+
+}
+
+
+.primary{
+
+    background:#ffd700;
+
+    color:#07152f;
+
+}
+
+
+.secondary{
+
+    background:#162d55;
+
+    color:white;
+
+    border:1px solid
+        rgba(255,215,0,0.30);
+
+}
+
+
+.danger{
+
+    background:#b91c1c;
+
+    color:white;
+
+}
+
+
+button:disabled{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+#status{
+
+    display:none;
+
+    margin-bottom:15px;
+
+    padding:13px;
+
+    border-radius:10px;
+
+    font-size:13px;
+
+    line-height:1.5;
+
+}
+
+
+#status.show{
+
+    display:block;
+
+}
+
+
+#status.success{
+
+    background:#123d25;
+
+    border:1px solid #35c66b;
+
+    color:#b9ffd0;
+
+}
+
+
+#status.error{
+
+    background:#421719;
+
+    border:1px solid #ff5b61;
+
+    color:#ffd0d2;
+
+}
+
+
+#status.info{
+
+    background:#162d55;
+
+    border:1px solid #7898c8;
+
+    color:#dce8ff;
+
+}
+
+
+/* =========================================
+   NORMAL PAGES
+========================================= */
+
+.pageGrid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:10px;
+
+}
+
+.pageButton{
+
+    width:100%;
+
+    background:#10274c;
+
+    border:1px solid
+        rgba(255,215,0,0.30);
+
+    color:white;
+
+    text-align:left;
+
+    padding:14px;
+
+    border-radius:11px;
+
+}
+
+.pageButton.active{
+
+    background:#ffd700;
+
+    color:#07152f;
+
+}
+
+
+/* =========================================
+   PUBLISH STATUS
+========================================= */
+
+.publishRow{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:15px;
+
+}
+
+.publishRow input{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+
+/* =========================================
+   MORE PAGE LIST
+========================================= */
+
+.moreList{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    margin-top:10px;
+
+}
+
+
+.moreItem{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    background:#07152f;
+
+    border:1px solid
+        rgba(255,215,0,0.25);
+
+}
+
+
+.moreItemTitle{
+
+    flex:1;
+
+    font-weight:bold;
+
+    font-size:13px;
+
+}
+
+
+.moreItemButtons{
+
+    display:flex;
+
+    gap:6px;
+
+}
+
+
+.smallButton{
+
+    padding:8px 10px;
+
+    font-size:11px;
+
+}
+
+
+/* =========================================
+   DIVIDER
+========================================= */
+
+.divider{
+
+    height:1px;
+
+    background:
+        rgba(255,215,0,0.18);
+
+    margin:20px 0;
+
+}
+
+
+/* =========================================
+   HELP
+========================================= */
+
+.help{
+
+    color:#bfc8d8;
+
+    font-size:12px;
+
+    line-height:1.6;
+
+}
+
+
+code{
+
+    color:#ffd700;
+
+}
+
+
+/* =========================================
+   EVENT NAVIGATION ADMIN
+========================================= */
+
+.eventAdminTitle{
+
+    margin:0 0 8px;
+
+    color:#ffd700;
+
+    font-size:20px;
+
+}
+
+.eventCurrentBox{
+
+    background:#07152f;
+
+    border:1px solid
+        rgba(255,215,0,0.25);
+
+    border-radius:12px;
+
+    padding:15px;
+
+    margin-bottom:15px;
+
+}
+
+.eventCurrentLabel{
+
+    color:#bfc8d8;
+
+    font-size:12px;
+
+    margin-bottom:7px;
+
+}
+
+#currentEventName{
+
+    color:#ffd700;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    word-break:break-word;
+
+}
+
+.eventExamples{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+    margin-top:10px;
+
+}
+
+.eventExample{
+
+    background:#10274c;
+
+    color:white;
+
+    border:1px solid
+        rgba(255,215,0,0.25);
+
+    border-radius:8px;
+
+    padding:8px 10px;
+
+    font-size:11px;
+
+    cursor:pointer;
+
+}
+
+
+/* =========================================
+   EVENT CODE STATUS
+========================================= */
+
+#eventCodeStatus{
+
+    color:#ffd700;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    word-break:break-word;
+
+}
+
+
+/* =========================================
+   EVENT CODE TEXTAREA
+========================================= */
+
+#eventCode{
+
+    min-height:420px;
+
+    font-family:
+        Consolas,
+        Monaco,
+        "Courier New",
+        monospace;
+
+    font-size:12px;
+
+    line-height:1.5;
+
+    color:#e9edf5;
+
+    background:#030b19;
+
+    white-space:pre;
+
+    overflow:auto;
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:600px){
+
+    body{
+
+        padding:8px;
+
+    }
+
+    .kulzzyHeader h1{
+
+        font-size:20px;
+
+    }
+
+    .pageGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .moreItem{
+
+        align-items:flex-start;
+
+        flex-direction:column;
+
+    }
+
+    .moreItemButtons{
+
+        width:100%;
+
+    }
+
+    .moreItemButtons button{
+
+        flex:1;
+
+    }
+
+    #currentEventName{
+
+        font-size:16px;
+
+    }
+
+    #eventCode{
+
+        min-height:350px;
+
+        font-size:11px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="kulzzyAdmin">
+
+
+<!-- =====================================
+     HEADER
+===================================== -->
+
+<div class="kulzzyHeader">
+
+    <h1>
+        KULZZY RADIO PAGE ADMIN
+    </h1>
+
+    <p>
+        Publish and manage Home, Request,
+        Wishes, Market and More pages.
+    </p>
+
+</div>
+
+
+
+<!-- =====================================
+     STATUS
+===================================== -->
+
+<div id="status"></div>
+
+
+
+<!-- =====================================
+     EVENT NAVIGATION ADMIN
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <h2 class="eventAdminTitle">
+
+        👑 EVENT NAVIGATION CONTROL
+
+    </h2>
+
+
+    <p class="help">
+
+        This controls the name displayed on the
+        <strong>second button</strong> of the
+        public Kulzzy Radio navigation bar.
+
+        The page itself remains connected to the
+        existing <code>request</code> section.
+
+    </p>
+
+
+    <div class="divider"></div>
+
+
+    <div class="eventCurrentBox">
+
+        <div class="eventCurrentLabel">
+
+            CURRENT PUBLIC BUTTON NAME
+
+        </div>
+
+
+        <div id="currentEventName">
+
+            Loading...
+
+        </div>
+
+    </div>
+
+
+
+    <div class="field">
+
+        <label for="eventName">
+
+            NEW EVENT BUTTON NAME
+
+        </label>
+
+
+        <input
+            id="eventName"
+            type="text"
+            maxlength="60"
+            placeholder="Example: 👑 FACE OF KULZZY RADIO">
+
+    </div>
+
+
+
+    <div class="buttons">
+
+        <button
+            type="button"
+            class="primary"
+            id="saveEventName">
+
+            SAVE EVENT NAME
+
+        </button>
+
+
+        <button
+            type="button"
+            class="secondary"
+            id="resetEventName">
+
+            RESET TO FACE OF KULZZY RADIO
+
+        </button>
+
+    </div>
+
+
+
+    <div class="divider"></div>
+
+
+    <div class="help">
+
+        QUICK EXAMPLES:
+
+    </div>
+
+
+    <div class="eventExamples">
+
+
+        <button
+            type="button"
+            class="eventExample"
+            data-event="👑 FACE OF KULZZY RADIO">
+
+            👑 FACE OF KULZZY RADIO
+
+        </button>
+
+
+        <button
+            type="button"
+            class="eventExample"
+            data-event="🔥 BIRTHGAME 2026">
+
+            🔥 BIRTHGAME 2026
+
+        </button>
+
+
+        <button
+            type="button"
+            class="eventExample"
+            data-event="🏆 KULZZY AWARDS">
+
+            🏆 KULZZY AWARDS
+
+        </button>
+
+
+        <button
+            type="button"
+            class="eventExample"
+            data-event="🎉 KULZZY FESTIVAL">
+
+            🎉 KULZZY FESTIVAL
+
+        </button>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     EVENT CODE MANAGEMENT
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <h2 class="eventAdminTitle">
+
+        🧩 EVENT CODE MANAGEMENT
+
+    </h2>
+
+
+    <p class="help">
+
+        This section shows the actual HTML/code
+        currently stored for the public
+        <strong>EVENTS</strong> page.
+
+        For example, the Face of Kulzzy Radio
+        event code is stored here.
+
+    </p>
+
+
+    <div class="divider"></div>
+
+
+    <div class="eventCurrentBox">
+
+        <div class="eventCurrentLabel">
+
+            EVENT CODE STATUS
+
+        </div>
+
+
+        <div id="eventCodeStatus">
+
+            Checking...
+
+        </div>
+
+    </div>
+
+
+    <div class="field">
+
+        <label for="eventCode">
+
+            CURRENT EVENT HTML / CODE
+
+        </label>
+
+
+        <textarea
+            id="eventCode"
+            readonly
+            placeholder="No event code found."></textarea>
+
+    </div>
+
+
+    <div class="buttons">
+
+        <button
+            type="button"
+            class="secondary"
+            id="refreshEventCode">
+
+            REFRESH EVENT CODE
+
+        </button>
+
+
+        <button
+            type="button"
+            class="danger"
+            id="removeEventCode">
+
+            REMOVE EVENT CODE
+
+        </button>
+
+    </div>
+
+
+    <div class="help" style="margin-top:12px">
+
+        Database location:
+
+        <code>
+            kulzzyContent/request
+        </code>
+
+        <br><br>
+
+        Removing the event code does not remove
+        the public event button name.
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     PAGE SELECTOR
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <label>
+        SELECT PAGE
+    </label>
+
+
+    <div class="pageGrid">
+
+
+        <button
+            type="button"
+            class="pageButton active"
+            data-page="home">
+
+            HOME
+
+        </button>
+
+
+        <button
+            type="button"
+            class="pageButton"
+            data-page="request">
+
+            EVENTS
+
+        </button>
+
+
+        <button
+            type="button"
+            class="pageButton"
+            data-page="wishes">
+
+            WISHES
+
+        </button>
+
+
+        <button
+            type="button"
+            class="pageButton"
+            data-page="market">
+
+            MARKET
+
+        </button>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     NORMAL PAGE EDITOR
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <div class="field">
+
+        <label for="pageTitle">
+
+            PAGE TITLE
+
+        </label>
+
+
+        <input
+            id="pageTitle"
+            type="text"
+            placeholder="Enter page title">
+
+    </div>
+
+
+
+    <div class="field">
+
+        <label for="pageContent">
+
+            PAGE HTML / CONTENT
+
+        </label>
+
+
+        <textarea
+            id="pageContent"
+            placeholder="Enter the HTML or content you want displayed on this page"></textarea>
+
+    </div>
+
+
+
+    <div class="publishRow">
+
+        <input
+            id="published"
+            type="checkbox"
+            checked>
+
+        <label
+            for="published"
+            style="margin:0">
+
+            Publish this page
+
+        </label>
+
+    </div>
+
+
+
+    <div class="buttons">
+
+        <button
+            type="button"
+            class="primary"
+            id="savePage">
+
+            PUBLISH PAGE
+
+        </button>
+
+
+        <button
+            type="button"
+            class="secondary"
+            id="clearPage">
+
+            CLEAR
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     MORE PAGE ADMIN
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <h2 style="color:#ffd700;margin-top:0">
+
+        MORE PAGES
+
+    </h2>
+
+
+    <p class="help">
+
+        Create additional pages that will appear
+        inside the <strong>More</strong> section
+        of your navigation.
+
+    </p>
+
+
+    <div class="divider"></div>
+
+
+    <div class="field">
+
+        <label for="moreTitle">
+
+            MORE PAGE TITLE
+
+        </label>
+
+
+        <input
+            id="moreTitle"
+            type="text"
+            placeholder="Example: About Us">
+
+    </div>
+
+
+
+    <div class="field">
+
+        <label for="moreContent">
+
+            MORE PAGE HTML / CONTENT
+
+        </label>
+
+
+        <textarea
+            id="moreContent"
+            placeholder="Enter the content for this More page"></textarea>
+
+    </div>
+
+
+
+    <div class="field">
+
+        <label for="moreOrder">
+
+            DISPLAY ORDER
+
+        </label>
+
+
+        <input
+            id="moreOrder"
+            type="number"
+            value="0"
+            min="0">
+
+    </div>
+
+
+
+    <div class="publishRow">
+
+        <input
+            id="morePublished"
+            type="checkbox"
+            checked>
+
+        <label
+            for="morePublished"
+            style="margin:0">
+
+            Publish this More page
+
+        </label>
+
+    </div>
+
+
+
+    <div class="buttons">
+
+        <button
+            type="button"
+            class="primary"
+            id="saveMore">
+
+            PUBLISH MORE PAGE
+
+        </button>
+
+
+        <button
+            type="button"
+            class="secondary"
+            id="clearMore">
+
+            NEW MORE PAGE
+
+        </button>
+
+    </div>
+
+
+
+    <div class="divider"></div>
+
+
+    <h3 style="color:#ffd700">
+
+        EXISTING MORE PAGES
+
+    </h3>
+
+
+    <div
+        id="moreList"
+        class="moreList">
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     DATABASE INFORMATION
+===================================== -->
+
+<div class="kulzzyCard">
+
+    <h3 style="color:#ffd700">
+
+        DATABASE STRUCTURE
+
+    </h3>
+
+
+    <p class="help">
+
+        Normal pages are saved to:
+
+    </p>
+
+
+    <p class="help">
+
+        <code>
+            kulzzyContent/home
+        </code>
+
+        <br>
+
+        <code>
+            kulzzyContent/request
+        </code>
+
+        <br>
+
+        <code>
+            kulzzyContent/wishes
+        </code>
+
+        <br>
+
+        <code>
+            kulzzyContent/market
+        </code>
+
+    </p>
+
+
+    <p class="help">
+
+        More pages are saved to:
+
+    </p>
+
+
+    <p class="help">
+
+        <code>
+            kulzzyMorePages
+        </code>
+
+    </p>
+
+
+    <p class="help">
+
+        Event navigation name is saved to:
+
+    </p>
+
+
+    <p class="help">
+
+        <code>
+            kulzzyNavigation/eventName
+        </code>
+
+    </p>
+
+</div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     FIREBASE
+===================================== -->
+
+<script type="module">
+
+
+/* =========================================
+   FIREBASE IMPORT
+========================================= */
+
+import {
+
+    initializeApp
+
+}
+
+from
+
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+
+    getDatabase,
+    ref,
+    get,
+    set,
+    update,
+    remove,
+    push,
+    onValue
+
+}
+
+from
+
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+
+/* =========================================
+   FIREBASE CONFIG
+========================================= */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyBH85NGWsSAK5cubbPdnmunwYZFZpj_CB0",
+
+    authDomain:
+        "kulzzy-radio-chat.firebaseapp.com",
+
+    databaseURL:
+        "https://kulzzy-radio-chat-default-rtdb.europe-west1.firebasedatabase.app",
+
+    projectId:
+        "kulzzy-radio-chat",
+
+    storageBucket:
+        "kulzzy-radio-chat.firebasestorage.app",
+
+    messagingSenderId:
+        "510100635134",
+
+    appId:
+        "1:510100635134:web:9d3b2e983eb6e9a385d4af"
+
+};
+
+
+
+/* =========================================
+   INITIALIZE
+========================================= */
+
+let app;
+
+let db;
+
+
+try{
+
+    app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    db =
+        getDatabase(
+            app
+        );
+
+}
+
+catch(error){
+
+    console.error(error);
+
+    showStatus(
+        "Firebase could not be initialized: " +
+        error.message,
+        "error"
+    );
+
+}
+
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let currentPage =
+    "home";
+
+
+let currentMoreId =
+    null;
+
+
+const DEFAULT_EVENT_NAME =
+    "👑 FACE OF KULZZY RADIO";
+
+
+const EVENT_CODE_PATH =
+    "kulzzyContent/request";
+
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const pageTitle =
+    document.getElementById(
+        "pageTitle"
+    );
+
+
+const pageContent =
+    document.getElementById(
+        "pageContent"
+    );
+
+
+const published =
+    document.getElementById(
+        "published"
+    );
+
+
+const moreTitle =
+    document.getElementById(
+        "moreTitle"
+    );
+
+
+const moreContent =
+    document.getElementById(
+        "moreContent"
+    );
+
+
+const moreOrder =
+    document.getElementById(
+        "moreOrder"
+    );
+
+
+const morePublished =
+    document.getElementById(
+        "morePublished"
+    );
+
+
+const moreList =
+    document.getElementById(
+        "moreList"
+    );
+
+
+const eventNameInput =
+    document.getElementById(
+        "eventName"
+    );
+
+
+const currentEventName =
+    document.getElementById(
+        "currentEventName"
+    );
+
+
+const saveEventNameButton =
+    document.getElementById(
+        "saveEventName"
+    );
+
+
+const resetEventNameButton =
+    document.getElementById(
+        "resetEventName"
+    );
+
+
+const eventCode =
+    document.getElementById(
+        "eventCode"
+    );
+
+
+const eventCodeStatus =
+    document.getElementById(
+        "eventCodeStatus"
+    );
+
+
+const refreshEventCodeButton =
+    document.getElementById(
+        "refreshEventCode"
+    );
+
+
+const removeEventCodeButton =
+    document.getElementById(
+        "removeEventCode"
+    );
+
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+function showStatus(
+    message,
+    type="info"
+){
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    status.className =
+        "show " + type;
+
+
+    status.textContent =
+        message;
+
+
+    clearTimeout(
+        showStatus.timer
+    );
+
+
+    showStatus.timer =
+        setTimeout(
+            function(){
+
+                status.className =
+                    "";
+
+                status.textContent =
+                    "";
+
+            },
+            5000
+        );
+
+}
+
+
+
+/* =========================================
+   EVENT NAVIGATION ADMIN
+========================================= */
+
+let eventNameRef =
+    null;
+
+
+if(db){
+
+    eventNameRef =
+        ref(
+            db,
+            "kulzzyNavigation/eventName"
+        );
+
+}
+
+
+
+/* =========================================
+   LOAD EVENT NAME IN REALTIME
+========================================= */
+
+if(
+    db &&
+    eventNameRef
+){
+
+    onValue(
+
+        eventNameRef,
+
+        function(snapshot){
+
+            let name =
+                snapshot.val();
+
+
+            if(
+                typeof name !== "string" ||
+                !name.trim()
+            ){
+
+                name =
+                    DEFAULT_EVENT_NAME;
+
+            }
+
+
+            currentEventName.textContent =
+                name;
+
+
+            if(
+                document.activeElement !==
+                eventNameInput
+            ){
+
+                eventNameInput.value =
+                    name;
+
+            }
+
+        },
+
+        function(error){
+
+            console.error(
+                "Event navigation read error:",
+                error
+            );
+
+
+            currentEventName.textContent =
+                "Unable to load";
+
+
+            showStatus(
+
+                "Could not load the event button name: " +
+                error.message,
+
+                "error"
+
+            );
+
+        }
+
+    );
+
+}
+
+
+
+/* =========================================
+   SAVE EVENT NAME
+========================================= */
+
+saveEventNameButton
+    .addEventListener(
+
+        "click",
+
+        async function(){
+
+            if(!db){
+
+                showStatus(
+
+                    "Firebase is not available.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            const name =
+                eventNameInput.value.trim();
+
+
+            if(!name){
+
+                showStatus(
+
+                    "Enter an event button name.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            if(
+                name.length > 60
+            ){
+
+                showStatus(
+
+                    "Event button name is too long. Maximum 60 characters.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            saveEventNameButton.disabled =
+                true;
+
+
+            saveEventNameButton.textContent =
+                "SAVING...";
+
+
+            try{
+
+                await set(
+
+                    eventNameRef,
+
+                    name
+
+                );
+
+
+                showStatus(
+
+                    "✅ EVENT BUTTON NAME SAVED SUCCESSFULLY.",
+
+                    "success"
+
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "Event name save error:",
+                    error
+                );
+
+
+                showStatus(
+
+                    "Could not save event name: " +
+                    error.message,
+
+                    "error"
+
+                );
+
+            }
+
+
+            saveEventNameButton.disabled =
+                false;
+
+
+            saveEventNameButton.textContent =
+                "SAVE EVENT NAME";
+
+        }
+
+    );
+
+
+
+/* =========================================
+   RESET EVENT NAME
+========================================= */
+
+resetEventNameButton
+    .addEventListener(
+
+        "click",
+
+        async function(){
+
+            if(!db){
+
+                showStatus(
+
+                    "Firebase is not available.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            const confirmed =
+                confirm(
+
+                    "Reset the public event button name to:\n\n" +
+                    DEFAULT_EVENT_NAME
+
+                );
+
+
+            if(!confirmed){
+
+                return;
+
+            }
+
+
+            resetEventNameButton.disabled =
+                true;
+
+
+            try{
+
+                await set(
+
+                    eventNameRef,
+
+                    DEFAULT_EVENT_NAME
+
+                );
+
+
+                eventNameInput.value =
+                    DEFAULT_EVENT_NAME;
+
+
+                showStatus(
+
+                    "✅ EVENT BUTTON RESET SUCCESSFULLY.",
+
+                    "success"
+
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "Event name reset error:",
+                    error
+                );
+
+
+                showStatus(
+
+                    "Could not reset event name: " +
+                    error.message,
+
+                    "error"
+
+                );
+
+            }
+
+
+            resetEventNameButton.disabled =
+                false;
+
+        }
+
+    );
+
+
+
+/* =========================================
+   QUICK EVENT EXAMPLES
+========================================= */
+
+document
+    .querySelectorAll(
+        ".eventExample"
+    )
+    .forEach(
+
+        function(button){
+
+            button.addEventListener(
+
+                "click",
+
+                function(){
+
+                    eventNameInput.value =
+                        button.dataset.event;
+
+                    eventNameInput.focus();
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+
+/* =========================================
+   EVENT CODE MANAGEMENT
+========================================= */
+
+async function loadEventCode(){
+
+    if(!db){
+
+        eventCodeStatus.textContent =
+            "Firebase is not available.";
+
+        eventCode.value =
+            "";
+
+        return;
+
+    }
+
+
+    eventCodeStatus.textContent =
+        "Loading...";
+
+
+    eventCodeStatus.style.color =
+        "#ffd700";
+
+
+    try{
+
+        const snapshot =
+            await get(
+
+                ref(
+                    db,
+                    EVENT_CODE_PATH
+                )
+
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            eventCode.value =
+                "";
+
+
+            eventCodeStatus.textContent =
+                "NO EVENT CODE FOUND";
+
+
+            eventCodeStatus.style.color =
+                "#ff8a8a";
+
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        const html =
+            getHTML(data);
+
+
+        if(!html.trim()){
+
+            eventCode.value =
+                "";
+
+
+            eventCodeStatus.textContent =
+                "EVENT PAGE EXISTS, BUT NO HTML CODE WAS FOUND";
+
+
+            eventCodeStatus.style.color =
+                "#ffcc80";
+
+
+            return;
+
+        }
+
+
+        eventCode.value =
+            html;
+
+
+        eventCodeStatus.textContent =
+            "EVENT CODE FOUND";
+
+
+        eventCodeStatus.style.color =
+            "#7dffad";
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Event code read error:",
+            error
+        );
+
+
+        eventCode.value =
+            "";
+
+
+        eventCodeStatus.textContent =
+            "UNABLE TO LOAD EVENT CODE";
+
+
+        eventCodeStatus.style.color =
+            "#ff8a8a";
+
+
+        showStatus(
+
+            "Could not load event code: " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   REFRESH EVENT CODE
+========================================= */
+
+refreshEventCodeButton
+    .addEventListener(
+
+        "click",
+
+        async function(){
+
+            refreshEventCodeButton.disabled =
+                true;
+
+
+            refreshEventCodeButton.textContent =
+                "LOADING...";
+
+
+            await loadEventCode();
+
+
+            refreshEventCodeButton.disabled =
+                false;
+
+
+            refreshEventCodeButton.textContent =
+                "REFRESH EVENT CODE";
+
+        }
+
+    );
+
+
+
+/* =========================================
+   REMOVE EVENT CODE
+========================================= */
+
+removeEventCodeButton
+    .addEventListener(
+
+        "click",
+
+        async function(){
+
+            if(!db){
+
+                showStatus(
+
+                    "Firebase is not available.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            try{
+
+                const snapshot =
+                    await get(
+
+                        ref(
+                            db,
+                            EVENT_CODE_PATH
+                        )
+
+                    );
+
+
+                if(
+                    !snapshot.exists()
+                ){
+
+                    showStatus(
+
+                        "There is no event code to remove.",
+
+                        "info"
+
+                    );
+
+                    await loadEventCode();
+
+                    return;
+
+                }
+
+
+                const confirmed =
+                    confirm(
+
+                        "REMOVE EVENT CODE?\n\n" +
+
+                        "This will permanently remove the " +
+                        "content stored at:\n\n" +
+
+                        "kulzzyContent/request\n\n" +
+
+                        "This will remove the current Events " +
+                        "page content, including Face of Kulzzy " +
+                        "if its code is stored there.\n\n" +
+
+                        "The event button name will NOT be removed."
+
+                    );
+
+
+                if(!confirmed){
+
+                    return;
+
+                }
+
+
+                removeEventCodeButton.disabled =
+                    true;
+
+
+                removeEventCodeButton.textContent =
+                    "REMOVING...";
+
+
+                await remove(
+
+                    ref(
+                        db,
+                        EVENT_CODE_PATH
+                    )
+
+                );
+
+
+                eventCode.value =
+                    "";
+
+
+                eventCodeStatus.textContent =
+                    "EVENT CODE REMOVED";
+
+
+                eventCodeStatus.style.color =
+                    "#ff8a8a";
+
+
+                showStatus(
+
+                    "✅ EVENT CODE REMOVED SUCCESSFULLY.",
+
+                    "success"
+
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "Event code removal error:",
+                    error
+                );
+
+
+                showStatus(
+
+                    "Could not remove event code: " +
+                    error.message,
+
+                    "error"
+
+                );
+
+            }
+
+
+            removeEventCodeButton.disabled =
+                false;
+
+
+            removeEventCodeButton.textContent =
+                "REMOVE EVENT CODE";
+
+        }
+
+    );
+
+
+
+/* =========================================
+   NORMAL PAGE BUTTONS
+========================================= */
+
+document
+    .querySelectorAll(
+        ".pageButton"
+    )
+    .forEach(function(button){
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                document
+                    .querySelectorAll(
+                        ".pageButton"
+                    )
+                    .forEach(function(item){
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    });
+
+
+                button.classList.add(
+                    "active"
+                );
+
+
+                currentPage =
+                    button.dataset.page;
+
+
+                loadNormalPage(
+                    currentPage
+                );
+
+            }
+        );
+
+    });
+
+
+
+/* =========================================
+   LOAD NORMAL PAGE
+========================================= */
+
+async function loadNormalPage(
+    page
+){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    try{
+
+        const snapshot =
+            await get(
+
+                ref(
+
+                    db,
+
+                    "kulzzyContent/" +
+                    page
+
+                )
+
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            pageTitle.value =
+                capitalize(page);
+
+
+            pageContent.value =
+                "";
+
+
+            published.checked =
+                true;
+
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        pageTitle.value =
+            data.title ||
+            data.name ||
+            capitalize(page);
+
+
+        pageContent.value =
+            getHTML(data);
+
+
+        published.checked =
+            data.published !== false;
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not read " +
+            page +
+            ": " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   GET HTML
+========================================= */
+
+function getHTML(
+    data
+){
+
+    if(!data){
+
+        return "";
+
+    }
+
+
+    if(
+
+        typeof data.html === "string"
+
+    ){
+
+        return data.html;
+
+    }
+
+
+    if(
+
+        typeof data.content === "string"
+
+    ){
+
+        return data.content;
+
+    }
+
+
+    if(
+
+        typeof data.writeUp === "string"
+
+    ){
+
+        return data.writeUp;
+
+    }
+
+
+    if(
+
+        typeof data.writeup === "string"
+
+    ){
+
+        return data.writeup;
+
+    }
+
+
+    if(
+
+        typeof data.body === "string"
+
+    ){
+
+        return data.body;
+
+    }
+
+
+    if(
+
+        typeof data.description === "string"
+
+    ){
+
+        return data.description;
+
+    }
+
+
+    if(
+
+        typeof data.pageContent === "string"
+
+    ){
+
+        return data.pageContent;
+
+    }
+
+
+    if(
+
+        typeof data.htmlContent === "string"
+
+    ){
+
+        return data.htmlContent;
+
+    }
+
+
+    return "";
+
+}
+
+
+
+/* =========================================
+   CAPITALIZE
+========================================= */
+
+function capitalize(
+    value
+){
+
+    if(!value){
+
+        return "";
+
+    }
+
+
+    return value
+        .charAt(0).toUpperCase() +
+        value.slice(1);
+
+}
+
+
+
+/* =========================================
+   SAVE NORMAL PAGE
+========================================= */
+
+document
+    .getElementById(
+        "savePage"
+    )
+    .addEventListener(
+        "click",
+        saveNormalPage
+    );
+
+
+
+async function saveNormalPage(){
+
+    if(!db){
+
+        showStatus(
+            "Firebase is not available.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        pageTitle.value.trim();
+
+
+    const html =
+        pageContent.value;
+
+
+    if(!title){
+
+        showStatus(
+            "Enter a page title.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(!html.trim()){
+
+        showStatus(
+            "Enter the page content.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const saveButton =
+        document.getElementById(
+            "savePage"
+        );
+
+
+    saveButton.disabled =
+        true;
+
+
+    try{
+
+        const pageRef =
+            ref(
+
+                db,
+
+                "kulzzyContent/" +
+                currentPage
+
+            );
+
+
+        const existing =
+            await get(
+                pageRef
+            );
+
+
+        let oldData = {};
+
+
+        if(
+            existing.exists()
+        ){
+
+            oldData =
+                existing.val() || {};
+
+        }
+
+
+        const pageData = {
+
+            title:title,
+
+            name:title,
+
+            html:html,
+
+            content:html,
+
+            writeUp:html,
+
+            published:
+                published.checked,
+
+            order:
+                oldData.order ||
+                0,
+
+            updatedAt:
+                Date.now()
+
+        };
+
+
+        await set(
+            pageRef,
+            pageData
+        );
+
+
+        showStatus(
+
+            capitalize(currentPage) +
+            " page published successfully.",
+
+            "success"
+
+        );
+
+
+        if(
+            currentPage === "request"
+        ){
+
+            await loadEventCode();
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not publish " +
+            currentPage +
+            ": " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+
+    saveButton.disabled =
+        false;
+
+}
+
+
+
+/* =========================================
+   CLEAR NORMAL PAGE
+========================================= */
+
+document
+    .getElementById(
+        "clearPage"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            pageTitle.value =
+                capitalize(
+                    currentPage
+                );
+
+            pageContent.value =
+                "";
+
+            published.checked =
+                true;
+
+        }
+    );
+
+
+
+/* =========================================
+   SAVE MORE PAGE
+========================================= */
+
+document
+    .getElementById(
+        "saveMore"
+    )
+    .addEventListener(
+        "click",
+        saveMorePage
+    );
+
+
+
+async function saveMorePage(){
+
+    if(!db){
+
+        showStatus(
+            "Firebase is not available.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        moreTitle.value.trim();
+
+
+    const html =
+        moreContent.value;
+
+
+    const order =
+        Number(
+            moreOrder.value
+        ) || 0;
+
+
+    if(!title){
+
+        showStatus(
+            "Enter the More page title.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(!html.trim()){
+
+        showStatus(
+            "Enter the More page content.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const saveButton =
+        document.getElementById(
+            "saveMore"
+        );
+
+
+    saveButton.disabled =
+        true;
+
+
+    try{
+
+        let pageRef;
+
+
+        let id;
+
+
+        if(currentMoreId){
+
+            id =
+                currentMoreId;
+
+
+            pageRef =
+                ref(
+
+                    db,
+
+                    "kulzzyMorePages/" +
+                    id
+
+                );
+
+        }
+
+        else{
+
+            pageRef =
+                push(
+
+                    ref(
+                        db,
+                        "kulzzyMorePages"
+                    )
+
+                );
+
+            id =
+                pageRef.key;
+
+        }
+
+
+        const pageData = {
+
+            id:id,
+
+            title:title,
+
+            name:title,
+
+            html:html,
+
+            content:html,
+
+            writeUp:html,
+
+            published:
+                morePublished.checked,
+
+            order:order,
+
+            updatedAt:
+                Date.now()
+
+        };
+
+
+        await set(
+            pageRef,
+            pageData
+        );
+
+
+        showStatus(
+
+            "More page published successfully.",
+
+            "success"
+
+        );
+
+
+        clearMoreForm();
+
+
+        await loadMorePages();
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not save More page: " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+
+    saveButton.disabled =
+        false;
+
+}
+
+
+
+/* =========================================
+   LOAD MORE PAGES
+========================================= */
+
+async function loadMorePages(){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    try{
+
+        const snapshot =
+            await get(
+
+                ref(
+                    db,
+                    "kulzzyMorePages"
+                )
+
+            );
+
+
+        moreList.innerHTML =
+            "";
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            moreList.innerHTML =
+
+                "<div class='help'>" +
+                "No More pages published yet." +
+                "</div>";
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        const pages =
+
+            Object.keys(
+                data
+            )
+
+            .map(function(id){
+
+                const page =
+                    data[id] || {};
+
+
+                return {
+
+                    id:id,
+
+                    title:
+                        page.title ||
+                        page.name ||
+                        "Untitled",
+
+                    order:
+                        Number(
+                            page.order
+                        ) || 0,
+
+                    published:
+                        page.published !== false
+
+                };
+
+            })
+
+            .sort(function(a,b){
+
+                return a.order -
+                       b.order;
+
+            });
+
+
+        pages.forEach(
+            function(page){
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "moreItem";
+
+
+                const title =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                title.className =
+                    "moreItemTitle";
+
+
+                title.textContent =
+                    page.title +
+                    (
+                        page.published
+                        ? ""
+                        : " (Unpublished)"
+                    );
+
+
+                const buttons =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                buttons.className =
+                    "moreItemButtons";
+
+
+                const edit =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                edit.type =
+                    "button";
+
+
+                edit.className =
+                    "secondary smallButton";
+
+
+                edit.textContent =
+                    "EDIT";
+
+
+                edit.addEventListener(
+                    "click",
+                    function(){
+
+                        editMorePage(
+                            page.id
+                        );
+
+                    }
+                );
+
+
+                const removeButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                removeButton.type =
+                    "button";
+
+
+                removeButton.className =
+                    "danger smallButton";
+
+
+                removeButton.textContent =
+                    "DELETE";
+
+
+                removeButton.addEventListener(
+                    "click",
+                    function(){
+
+                        deleteMorePage(
+                            page.id,
+                            page.title
+                        );
+
+                    }
+                );
+
+
+                buttons.appendChild(
+                    edit
+                );
+
+
+                buttons.appendChild(
+                    removeButton
+                );
+
+
+                item.appendChild(
+                    title
+                );
+
+
+                item.appendChild(
+                    buttons
+                );
+
+
+                moreList.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not load More pages: " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   EDIT MORE PAGE
+========================================= */
+
+async function editMorePage(
+    id
+){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    try{
+
+        const snapshot =
+            await get(
+
+                ref(
+
+                    db,
+
+                    "kulzzyMorePages/" +
+                    id
+
+                )
+
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            showStatus(
+                "That page no longer exists.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        currentMoreId =
+            id;
+
+
+        moreTitle.value =
+            data.title ||
+            data.name ||
+            "";
+
+
+        moreContent.value =
+            getHTML(data);
+
+
+        moreOrder.value =
+            Number(
+                data.order
+            ) || 0;
+
+
+        morePublished.checked =
+            data.published !== false;
+
+
+        document
+            .getElementById(
+                "saveMore"
+            )
+            .textContent =
+            "UPDATE MORE PAGE";
+
+
+        window.scrollTo({
+
+            top:document
+                .getElementById(
+                    "moreTitle"
+                )
+                .getBoundingClientRect()
+                .top +
+                window.scrollY -
+                30,
+
+            behavior:"smooth"
+
+        });
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not edit page: " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   DELETE MORE PAGE
+========================================= */
+
+async function deleteMorePage(
+    id,
+    title
+){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+
+            "Delete this More page?\n\n" +
+            title
+
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    try{
+
+        await remove(
+
+            ref(
+
+                db,
+
+                "kulzzyMorePages/" +
+                id
+
+            )
+
+        );
+
+
+        if(
+            currentMoreId === id
+        ){
+
+            clearMoreForm();
+
+        }
+
+
+        showStatus(
+
+            "More page deleted successfully.",
+
+            "success"
+
+        );
+
+
+        await loadMorePages();
+
+    }
+
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        showStatus(
+
+            "Could not delete page: " +
+            error.message,
+
+            "error"
+
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   CLEAR MORE FORM
+========================================= */
+
+function clearMoreForm(){
+
+    currentMoreId =
+        null;
+
+
+    moreTitle.value =
+        "";
+
+
+    moreContent.value =
+        "";
+
+
+    moreOrder.value =
+        "0";
+
+
+    morePublished.checked =
+        true;
+
+
+    document
+        .getElementById(
+            "saveMore"
+        )
+        .textContent =
+        "PUBLISH MORE PAGE";
+
+}
+
+
+
+/* =========================================
+   NEW MORE PAGE
+========================================= */
+
+document
+    .getElementById(
+        "clearMore"
+    )
+    .addEventListener(
+        "click",
+        clearMoreForm
+    );
+
+
+
+/* =========================================
+   START
+========================================= */
+
+loadNormalPage(
+    "home"
+);
+
+
+loadMorePages();
+
+
+loadEventCode();
+
+
+</script>
+
+
+</body>
+
+</html>
