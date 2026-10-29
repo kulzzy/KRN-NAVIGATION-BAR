@@ -719,8 +719,7 @@ code{
     </h1>
 
     <p>
-        Publish and manage Home, Request,
-        Wishes, Market and More pages.
+        Publish and manage Home, Events, Wishes, Market, More and Voters competitions.
     </p>
 
 </div>
@@ -1282,6 +1281,34 @@ code{
 
 
 <!-- =====================================
+     VOTERS COMPETITION PAGE MANAGER
+===================================== -->
+<div class="kulzzyCard" id="votersAdminCard">
+    <h2 style="color:#ffd700;margin-top:0">🗳️ VOTERS COMPETITION PAGES</h2>
+    <p class="help">Add a voting page card with its picture. Use a public voting-page URL to open an existing competition, or paste the competition HTML below. Published items appear under the VOTERS button on the public navigation.</p>
+    <div class="divider"></div>
+    <div class="field"><label for="voterTitle">COMPETITION TITLE</label><input id="voterTitle" type="text" placeholder="Example: Business Champion 2026"></div>
+    <div class="field">
+        <label for="voterImageFile">UPLOAD COMPETITION PICTURE FROM YOUR DEVICE</label>
+        <input id="voterImageFile" type="file" accept="image/*" style="width:100%;padding:12px;background:#fff;color:#111;border-radius:8px;border:1px solid #d7d7d7">
+        <p class="help" style="margin:7px 0 0">Tap here to choose a picture from your phone gallery or take a picture with your camera. You do not need to paste a picture link.</p>
+        <div id="voterImagePreviewWrap" style="display:none;margin-top:12px">
+            <img id="voterImagePreview" alt="Competition picture preview" style="display:block;width:100%;max-width:320px;max-height:240px;object-fit:contain;border:1px solid #ffd700;border-radius:10px;background:#fff;padding:4px">
+            <button type="button" class="secondary" id="removeVoterImage" style="margin-top:8px">CLEAR PICTURE SELECTION</button>
+        </div>
+        <div id="voterCurrentImageNote" class="help" style="margin-top:8px"></div>
+    </div>
+    <div class="field"><label for="voterUrl">VOTING PAGE URL (OPTIONAL)</label><input id="voterUrl" type="url" placeholder="https://your-voting-page.example/"></div>
+    <div class="field"><label for="voterContent">PAGE HTML / CONTENT (OPTIONAL IF URL IS PROVIDED)</label><textarea id="voterContent" placeholder="Paste competition HTML here if you are not using a page URL"></textarea></div>
+    <div class="field"><label for="voterOrder">DISPLAY ORDER</label><input id="voterOrder" type="number" value="0" min="0"></div>
+    <div class="publishRow"><input id="voterPublished" type="checkbox" checked><label for="voterPublished" style="margin:0">Publish this voting competition</label></div>
+    <div class="buttons"><button type="button" class="primary" id="saveVoter">PUBLISH VOTING PAGE</button><button type="button" class="secondary" id="clearVoter">NEW VOTING PAGE</button></div>
+    <div class="divider"></div><h3 style="color:#ffd700">EXISTING VOTING PAGES</h3><div id="voterList" class="moreList"><div class="help">Loading voting pages…</div></div>
+    <p class="help">Firebase database path: <code>kulzzyVotersPages</code></p>
+</div>
+
+
+<!-- =====================================
      DATABASE INFORMATION
 ===================================== -->
 
@@ -1405,6 +1432,13 @@ from
 
 "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js";
+
 
 
 /* =========================================
@@ -1445,6 +1479,7 @@ const firebaseConfig = {
 let app;
 
 let db;
+let storage;
 
 
 try{
@@ -1459,6 +1494,7 @@ try{
         getDatabase(
             app
         );
+    storage = getStorage(app);
 
 }
 
@@ -1486,6 +1522,7 @@ let currentPage =
 
 let currentMoreId =
     null;
+let currentVoterId = null;
 
 
 const DEFAULT_EVENT_NAME =
@@ -1547,6 +1584,21 @@ const moreList =
     document.getElementById(
         "moreList"
     );
+
+const voterTitle = document.getElementById("voterTitle");
+const voterImageFile = document.getElementById("voterImageFile");
+const voterImagePreviewWrap = document.getElementById("voterImagePreviewWrap");
+const voterImagePreview = document.getElementById("voterImagePreview");
+const voterCurrentImageNote = document.getElementById("voterCurrentImageNote");
+const removeVoterImageButton = document.getElementById("removeVoterImage");
+let currentVoterImageUrl = "";
+let selectedVoterImageDataUrl = "";
+let removeCurrentVoterImage = false;
+const voterUrl = document.getElementById("voterUrl");
+const voterContent = document.getElementById("voterContent");
+const voterOrder = document.getElementById("voterOrder");
+const voterPublished = document.getElementById("voterPublished");
+const voterList = document.getElementById("voterList");
 
 
 const eventNameInput =
@@ -3513,6 +3565,145 @@ document
 
 
 /* =========================================
+   VOTERS COMPETITION PAGE MANAGER
+========================================= */
+
+document.getElementById("saveVoter").addEventListener("click", saveVoterPage);
+document.getElementById("clearVoter").addEventListener("click", clearVoterForm);
+voterImageFile.addEventListener("change", previewVoterImage);
+removeVoterImageButton.addEventListener("click", clearSelectedVoterImage);
+
+function previewVoterImage(){
+    const file = voterImageFile.files && voterImageFile.files[0];
+    if(!file) return;
+    if(!file.type || !file.type.startsWith("image/")){
+        showStatus("Please choose an image file from your device.","error");
+        voterImageFile.value = "";
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        selectedVoterImageDataUrl = String(reader.result || "");
+        voterImagePreview.src = selectedVoterImageDataUrl;
+        voterImagePreviewWrap.style.display = "block";
+        voterCurrentImageNote.textContent = "Selected picture: " + file.name;
+        removeCurrentVoterImage = false;
+    };
+    reader.onerror = () => showStatus("Could not preview this picture. Please choose another image.","error");
+    reader.readAsDataURL(file);
+}
+
+function clearSelectedVoterImage(){
+    voterImageFile.value = "";
+    selectedVoterImageDataUrl = "";
+    removeCurrentVoterImage = false;
+    if(currentVoterImageUrl){
+        voterImagePreview.src = currentVoterImageUrl;
+        voterImagePreviewWrap.style.display = "block";
+        voterCurrentImageNote.textContent = "Your previously saved picture is still selected.";
+    }else{
+        voterImagePreview.removeAttribute("src");
+        voterImagePreviewWrap.style.display = "none";
+        voterCurrentImageNote.textContent = "Choose a picture from your device before saving.";
+    }
+}
+
+async function uploadVoterPicture(file, id){
+    if(!storage) throw new Error("Firebase Storage is not initialized.");
+    const safeName = (file.name || "competition-picture").replace(/[^a-zA-Z0-9._-]/g,"_");
+    const imageRef = storageRef(storage, "kulzzy-voters-pages/" + id + "/" + Date.now() + "-" + safeName);
+    const snapshot = await uploadBytes(imageRef, file, { contentType: file.type || "image/jpeg" });
+    return await getDownloadURL(snapshot.ref);
+}
+
+async function saveVoterPage(){
+    if(!db){showStatus("Firebase is not available.","error");return;}
+    const title=voterTitle.value.trim();
+    const url=voterUrl.value.trim();
+    const html=voterContent.value;
+    const order=Number(voterOrder.value)||0;
+    const file = voterImageFile.files && voterImageFile.files[0];
+    if(!title){showStatus("Enter the competition title.","error");return;}
+    if(!file && !currentVoterImageUrl && !selectedVoterImageDataUrl){showStatus("Choose a competition picture from your device before saving.","error");return;}
+    if(!url&&!html.trim()){showStatus("Enter a voting page URL or paste the page HTML/content.","error");return;}
+    const button=document.getElementById("saveVoter");
+    button.disabled=true;
+    const oldButtonText=button.textContent;
+    try{
+        let pageRef,id;
+        if(currentVoterId){id=currentVoterId;pageRef=ref(db,"kulzzyVotersPages/"+id);}
+        else{pageRef=push(ref(db,"kulzzyVotersPages"));id=pageRef.key;}
+        const oldSnap=currentVoterId?await get(pageRef):null;
+        const oldData=oldSnap&&oldSnap.exists()?oldSnap.val():{};
+        let image = currentVoterImageUrl || oldData.image || oldData.imageUrl || "";
+        if(file){
+            button.textContent="UPLOADING PICTURE…";
+            showStatus("Uploading your competition picture. Please keep this page open…","success");
+            image = await uploadVoterPicture(file,id);
+        } else if(removeCurrentVoterImage && !selectedVoterImageDataUrl){
+            image = "";
+        }
+        if(!image){showStatus("The picture was not uploaded. Please select it again.","error");return;}
+        button.textContent="SAVING PAGE…";
+        await set(pageRef,{id,title,name:title,image,imageUrl:image,url,pageUrl:url,html,content:html,order,published:voterPublished.checked,createdAt:oldData.createdAt||Date.now(),updatedAt:Date.now()});
+        showStatus("Voting page saved successfully with its picture.","success");
+        clearVoterForm();
+        await loadVoterPages();
+    }catch(error){
+        console.error(error);
+        showStatus("Could not save voting page: "+(error && error.message ? error.message : error)+". Check that Firebase Storage is enabled and its rules allow uploads.","error");
+    }finally{button.disabled=false;button.textContent=currentVoterId?"UPDATE VOTING PAGE":oldButtonText;}
+}
+
+async function loadVoterPages(){
+    if(!db||!voterList)return;
+    try{
+        const snap=await get(ref(db,"kulzzyVotersPages"));voterList.innerHTML="";
+        if(!snap.exists()){voterList.innerHTML='<div class="help">No voting pages have been added yet.</div>';return;}
+        const data=snap.val();const pages=Object.keys(data).map(id=>({id,...(data[id]||{})})).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+        pages.forEach(page=>{
+            const row=document.createElement("div");row.className="moreItem";
+            const infoWrap=document.createElement("div");infoWrap.style.display="flex";infoWrap.style.alignItems="center";infoWrap.style.gap="10px";infoWrap.style.minWidth="0";
+            const thumb=document.createElement("img");thumb.alt="";thumb.src=page.image||page.imageUrl||"";thumb.style.cssText="width:58px;height:58px;object-fit:cover;border-radius:8px;background:#fff;flex-shrink:0";
+            if(!thumb.src)thumb.style.display="none";
+            const info=document.createElement("div");info.className="moreItemTitle";info.textContent=(page.title||page.name||"Untitled")+" — "+(page.published===false?"UNPUBLISHED":"PUBLISHED");
+            infoWrap.append(thumb,info);
+            const actions=document.createElement("div");actions.className="moreItemButtons";
+            const edit=document.createElement("button");edit.type="button";edit.className="smallButton";edit.textContent="EDIT";edit.addEventListener("click",()=>editVoterPage(page.id));
+            const del=document.createElement("button");del.type="button";del.className="smallButton danger";del.textContent="DELETE";del.addEventListener("click",()=>deleteVoterPage(page.id,page.title||page.name||"Untitled"));
+            actions.append(edit,del);row.append(infoWrap,actions);voterList.appendChild(row);
+        });
+    }catch(error){console.error(error);voterList.innerHTML='<div class="help">Could not load voting pages: '+escapeVoterText(error.message)+'</div>';}
+}
+function escapeVoterText(value){const el=document.createElement("span");el.textContent=String(value||"");return el.innerHTML;}
+async function editVoterPage(id){
+    try{
+        const snap=await get(ref(db,"kulzzyVotersPages/"+id));
+        if(!snap.exists()){showStatus("Voting page no longer exists.","error");return;}
+        const d=snap.val();currentVoterId=id;
+        voterTitle.value=d.title||d.name||"";
+        currentVoterImageUrl=d.image||d.imageUrl||"";
+        selectedVoterImageDataUrl="";removeCurrentVoterImage=false;voterImageFile.value="";
+        if(currentVoterImageUrl){voterImagePreview.src=currentVoterImageUrl;voterImagePreviewWrap.style.display="block";voterCurrentImageNote.textContent="Current picture is saved. Choose another picture only if you want to replace it.";}
+        else{voterImagePreview.removeAttribute("src");voterImagePreviewWrap.style.display="none";voterCurrentImageNote.textContent="No picture saved. Choose one from your device.";}
+        voterUrl.value=d.url||d.pageUrl||"";voterContent.value=d.html||d.content||d.writeUp||"";voterOrder.value=Number(d.order)||0;voterPublished.checked=d.published!==false;
+        document.getElementById("saveVoter").textContent="UPDATE VOTING PAGE";
+        document.getElementById("votersAdminCard").scrollIntoView({behavior:"smooth",block:"start"});
+    }catch(error){showStatus("Could not edit voting page: "+error.message,"error");}
+}
+async function deleteVoterPage(id,title){
+    if(!confirm("Delete this voting page?\n\n"+title))return;
+    try{await remove(ref(db,"kulzzyVotersPages/"+id));if(currentVoterId===id)clearVoterForm();showStatus("Voting page deleted.","success");await loadVoterPages();}
+    catch(error){showStatus("Could not delete voting page: "+error.message,"error");}
+}
+function clearVoterForm(){
+    currentVoterId=null;currentVoterImageUrl="";selectedVoterImageDataUrl="";removeCurrentVoterImage=false;
+    voterTitle.value="";voterImageFile.value="";voterImagePreview.removeAttribute("src");voterImagePreviewWrap.style.display="none";voterCurrentImageNote.textContent="";
+    voterUrl.value="";voterContent.value="";voterOrder.value="0";voterPublished.checked=true;
+    document.getElementById("saveVoter").textContent="PUBLISH VOTING PAGE";
+}
+
+/* =========================================
    START
 ========================================= */
 
@@ -3522,7 +3713,7 @@ loadNormalPage(
 
 
 loadMorePages();
-
+loadVoterPages();
 
 loadEventCode();
 
