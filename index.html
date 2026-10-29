@@ -136,11 +136,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 .kulzzyMorePageTitle{flex:1;min-width:0;line-height:1.3;pointer-events:none}
 
-/*
-  MORE PAGE OVERLAY:
-  It is placed outside the navigation's stacking context and has a
-  higher stacking order, so its close button cannot be covered by nav.
-*/
+/* MORE PAGE OVERLAY */
 #kulzzyMorePageContent{
     position:fixed!important;
     inset:0!important;
@@ -173,9 +169,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     pointer-events:auto!important;touch-action:auto!important
 }
 
-/* CLOSE BUTTONS — ABOVE NAVIGATION AND PAGE CONTENT */
-.kulzzyMorePageClose,
-.kulzzyHomePageClose{
+/* CLOSE BUTTON FOR MORE PAGES ONLY */
+.kulzzyMorePageClose{
     position:fixed!important;
     top:6px!important;
     right:8px!important;
@@ -200,8 +195,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     touch-action:manipulation!important;
     pointer-events:auto!important
 }
-.kulzzyMorePageClose:active,
-.kulzzyHomePageClose:active{
+.kulzzyMorePageClose:active{
     background:#ffd700!important;color:#07152f!important
 }
 
@@ -247,7 +241,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyHomePageContentBox ul,
 .kulzzyHomePageContentBox ol{padding-left:25px}
 
-/* HOME OVERLAY */
+/* HOME OVERLAY — NO CLOSE BUTTON AND NO BACKGROUND COVER */
 #kulzzyHomePageContent{
     position:fixed!important;
     inset:0!important;
@@ -256,7 +250,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     min-height:100dvh!important;
     margin:0!important;
     padding:48px 0 25px!important;
-    background:#07152f;
+    background:transparent;
     z-index:2147482000!important;
     display:none;
     overflow-y:auto;
@@ -322,7 +316,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     #kulzzyContent{padding-top:45px!important}
     #kulzzyHomePageContent{padding-top:45px!important}
     #kulzzyMorePageContent{padding-top:48px!important}
-    .kulzzyMorePageClose,.kulzzyHomePageClose{
+    .kulzzyMorePageClose{
         top:5px!important;right:5px!important;
         width:34px!important;height:34px!important;
         min-width:34px!important;min-height:34px!important
@@ -377,7 +371,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
 </div>
 
-<!-- Overlays are outside the main content and navigation containers. -->
+<!-- Overlays -->
 <div id="kulzzyHomePageContent"></div>
 <div id="kulzzyMorePageContent"></div>
 
@@ -386,7 +380,7 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/12.16.0/firebase
 import {getDatabase,ref,get} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
 const firebaseConfig={
-    apiKey:"AIzaSyBH85NGWsSAK5cubbPdnmunwYZFZpj_CB0",
+    apiKey:"AIzaSyBH85NGWsSA5KcubbPdnmunwYZFZpj_CB0",
     authDomain:"kulzzy-radio-chat.firebaseapp.com",
     databaseURL:"https://kulzzy-radio-chat-default-rtdb.europe-west1.firebasedatabase.app",
     projectId:"kulzzy-radio-chat",
@@ -523,25 +517,18 @@ function loadNormalSection(section){
     return sectionLoading[section];
 }
 
-/* HOME OVERLAY */
+/* HOME OVERLAY — CLOSE BUTTON REMOVED */
 function ensureHomeOverlay(){
     const overlay=$("kulzzyHomePageContent");
     if(!overlay||homeOverlayBuilt)return;
 
     overlay.innerHTML="";
 
-    const close=document.createElement("button");
-    close.type="button";
-    close.className="kulzzyHomePageClose";
-    close.textContent="✕";
-    close.setAttribute("aria-label","Close Home");
-    close.addEventListener("click",closeHomePage);
-
     const box=document.createElement("div");
     box.className="kulzzyHomePageContentBox";
     box.id="kulzzyHomeOverlayBox";
 
-    overlay.append(close,box);
+    overlay.appendChild(box);
     homeOverlayBuilt=true;
 }
 
@@ -709,7 +696,6 @@ function showMorePage(page,button){
 
     content.append(close,box);
 
-    /* The overlay is shown above the navigation, with its close button on top. */
     content.classList.add("open");
     content.scrollTop=0;
 
@@ -877,7 +863,6 @@ function openSection(section,button){
         item.classList.toggle("active",item===button);
     });
 
-    /* Close overlays when changing navigation sections. */
     if(section!=="home"&&homeOverlay){
         homeOverlay.classList.remove("open");
     }
