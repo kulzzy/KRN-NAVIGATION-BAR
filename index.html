@@ -16,14 +16,14 @@ html,body{
 }
 body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
-/* NAVIGATION — REMAINS AT THE TOP */
+/* NAVIGATION */
 #kulzzyNav{
-    position:fixed;top:0px;left:50%;transform:translateX(-50%);
+    position:fixed;top:0;left:50%;transform:translateX(-50%);
     width:calc(100% - 16px);max-width:520px;height:40px;
     background:rgba(7,21,47,.98);
     border:1px solid rgba(255,215,0,.45);border-radius:11px;
     display:flex;align-items:center;justify-content:space-around;
-    padding:2px;z-index:999999999;
+    padding:2px;z-index:2147483647;
     box-shadow:0 2px 8px rgba(0,0,0,.2);
     pointer-events:auto;touch-action:manipulation
 }
@@ -32,7 +32,6 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     flex:1;width:100%;height:34px;border:0;background:transparent;
     color:white;font-size:11px;font-weight:bold;border-radius:8px;
     cursor:pointer;white-space:nowrap;
-    transition:background .08s linear,color .08s linear;
     -webkit-tap-highlight-color:transparent;
     pointer-events:auto;touch-action:manipulation;padding:0 2px
 }
@@ -40,7 +39,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyNavBtn:active{background:rgba(255,215,0,.25)}
 .kulzzyNavBtn.active{background:#ffd700;color:#07152f}
 
-/* MAIN SCROLL AREA */
+/* MAIN CONTENT */
 #kulzzyContent{
     position:relative;z-index:1;
     width:100%!important;max-width:none!important;min-width:0;
@@ -52,15 +51,14 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     -webkit-overflow-scrolling:touch;scrollbar-width:none;
     -ms-overflow-style:none
 }
-#kulzzyContent::-webkit-scrollbar{display:none;width:0;height:0}
+#kulzzyContent::-webkit-scrollbar{display:none}
 
-/* SECTIONS */
 .kulzzySection{
     display:none;width:100%!important;max-width:none!important;
     min-width:0;margin:0!important;padding:0!important;
-    position:relative;left:0;right:0;box-sizing:border-box;
+    position:relative;left:0;right:0;
     overflow:visible!important;touch-action:auto!important;
-    overscroll-behavior:auto!important;pointer-events:auto!important
+    pointer-events:auto!important
 }
 .kulzzySection.active{display:block}
 
@@ -69,8 +67,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     display:block;width:100%!important;max-width:none!important;
     min-width:0;margin:0!important;padding:0!important;
     overflow:visible!important;touch-action:auto!important;
-    overscroll-behavior:auto!important;pointer-events:auto!important;
-    -webkit-overflow-scrolling:touch
+    pointer-events:auto!important;-webkit-overflow-scrolling:touch
 }
 .kulzzyPublishedContent>div{
     width:100%;max-width:none;margin:0;padding:0;
@@ -85,28 +82,17 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyPublishedContent video,
 .kulzzyPublishedContent audio,
 .kulzzyPublishedContent canvas,
+.kulzzyPublishedContent iframe,
 .kulzzyPublishedContent [role="button"],
 .kulzzyPublishedContent [onclick]{
-    pointer-events:auto!important
+    pointer-events:auto!important;touch-action:auto!important
 }
-.kulzzyPublishedContent button,
-.kulzzyPublishedContent a,
-.kulzzyPublishedContent input,
-.kulzzyPublishedContent textarea,
-.kulzzyPublishedContent select,
-.kulzzyPublishedContent label,
-.kulzzyPublishedContent video,
-.kulzzyPublishedContent audio,
-.kulzzyPublishedContent canvas{
-    touch-action:auto!important
-}
-.kulzzyPublishedContent img{max-width:100%;height:auto;pointer-events:auto}
-.kulzzyPublishedContent video{max-width:100%;height:auto;pointer-events:auto!important}
+.kulzzyPublishedContent img{max-width:100%;height:auto}
 .kulzzyPublishedContent iframe{
     display:block;width:100%!important;max-width:100%!important;
-    border:0;pointer-events:auto!important;touch-action:auto!important
+    border:0
 }
-.kulzzyPublishedContent table{max-width:100%;pointer-events:auto}
+.kulzzyPublishedContent table{max-width:100%}
 
 /* MORE MENU */
 #kulzzyMorePagesMenu{
@@ -118,9 +104,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     width:100%;border:1px solid rgba(255,215,0,.35);
     border-radius:10px;padding:12px;background:#07152f;color:white;
     text-align:left;font-size:14px;font-weight:bold;cursor:pointer;
-    transition:background .08s linear,color .08s linear;
-    -webkit-tap-highlight-color:transparent;
     display:flex;align-items:center;gap:10px;
+    -webkit-tap-highlight-color:transparent;
     pointer-events:auto!important;touch-action:manipulation
 }
 .kulzzyMorePageButton:hover{background:rgba(255,215,0,.12);color:#ffd700}
@@ -161,48 +146,41 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 #kulzzyMorePageContent.open{display:block!important}
 
 .kulzzyMorePageContentBox{
-    position:relative;
-    z-index:1;
+    position:relative;z-index:1;
     width:100%;max-width:none;margin:0;padding:0 0 25px;
     background:transparent;color:white;border:0;border-radius:0;
     overflow:visible!important;line-height:1.6;
     pointer-events:auto!important;touch-action:auto!important
 }
 
-/* CLOSE BUTTON FOR MORE PAGES ONLY */
+/* MORE PAGE CLOSE BUTTON */
 .kulzzyMorePageClose{
-    position:fixed!important;
-    top:6px!important;
-    right:8px!important;
-    width:36px!important;
-    height:36px!important;
-    min-width:36px!important;
-    min-height:36px!important;
+    position:fixed!important;top:6px!important;right:8px!important;
+    width:36px!important;height:36px!important;
+    min-width:36px!important;min-height:36px!important;
     border:1px solid rgba(255,215,0,.7)!important;
-    border-radius:9px!important;
-    background:#07152f!important;
-    color:#ffd700!important;
-    font-size:21px!important;
-    font-weight:bold!important;
-    line-height:1!important;
-    cursor:pointer!important;
-    z-index:2147483647!important;
-    display:flex!important;
-    align-items:center!important;
+    border-radius:9px!important;background:#07152f!important;
+    color:#ffd700!important;font-size:21px!important;
+    font-weight:bold!important;line-height:1!important;
+    cursor:pointer!important;z-index:2147483646!important;
+    display:flex!important;align-items:center!important;
     justify-content:center!important;
     box-shadow:0 2px 8px rgba(0,0,0,.5)!important;
     -webkit-tap-highlight-color:transparent;
-    touch-action:manipulation!important;
-    pointer-events:auto!important
+    touch-action:manipulation!important;pointer-events:auto!important
 }
 .kulzzyMorePageClose:active{
     background:#ffd700!important;color:#07152f!important
 }
 
+/* EMBEDDED PAGE CONTENT */
 .kulzzyMorePageContentBox *,
 .kulzzyHomePageContentBox *{box-sizing:border-box;max-width:100%}
+
 .kulzzyMorePageContentBox img,
-.kulzzyHomePageContentBox img{max-width:100%!important;height:auto!important}
+.kulzzyHomePageContentBox img{
+    max-width:100%!important;height:auto!important
+}
 .kulzzyMorePageContentBox video,
 .kulzzyHomePageContentBox video{
     max-width:100%!important;height:auto!important;pointer-events:auto!important
@@ -241,7 +219,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyHomePageContentBox ul,
 .kulzzyHomePageContentBox ol{padding-left:25px}
 
-/* HOME OVERLAY — NO CLOSE BUTTON AND NO BACKGROUND COVER */
+/* HOME OVERLAY
+   Transparent and below the navigation, so every navigation button works. */
 #kulzzyHomePageContent{
     position:fixed!important;
     inset:0!important;
@@ -250,8 +229,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     min-height:100dvh!important;
     margin:0!important;
     padding:48px 0 25px!important;
-    background:transparent;
-    z-index:2147482000!important;
+    background:transparent!important;
+    z-index:2147483000!important;
     display:none;
     overflow-y:auto;
     overflow-x:hidden;
@@ -263,10 +242,15 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 #kulzzyHomePageContent::-webkit-scrollbar{display:none}
 #kulzzyHomePageContent.open{display:block!important}
+
+/* Keep navigation above Home */
+#kulzzyNav{z-index:2147483647!important}
+
 .kulzzyHomePageContentBox{
     width:100%;max-width:none;margin:0;padding:0 0 25px;
-    background:transparent;color:white;overflow:visible!important;
-    line-height:1.6;pointer-events:auto!important;touch-action:auto!important
+    background:transparent!important;color:white;
+    overflow:visible!important;line-height:1.6;
+    pointer-events:auto!important;touch-action:auto!important
 }
 
 /* VOTING COMPETITION CARDS */
@@ -282,7 +266,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     touch-action:manipulation
 }
 .kulzzyVoterCard img{
-    display:block;width:100%;height:160px;object-fit:cover;background:#10274c
+    display:block;width:100%;height:160px;object-fit:cover;
+    background:#10274c
 }
 .kulzzyVoterCardTitle{
     display:block;padding:10px;font-size:14px;font-weight:bold;
@@ -290,8 +275,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 .kulzzyVotersEmpty{
     grid-column:1/-1;text-align:center;padding:24px 14px;color:#ddd;
-    background:rgba(7,21,47,.8);border:1px solid rgba(255,215,0,.2);
-    border-radius:10px
+    background:rgba(7,21,47,.8);
+    border:1px solid rgba(255,215,0,.2);border-radius:10px
 }
 .kulzzyVotersDetail{padding:8px 10px 22px}
 .kulzzyVoterBack{
@@ -311,7 +296,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 
 @media(max-width:360px){
-    #kulzzyNav{width:calc(100% - 8px);top:0px;height:38px}
+    #kulzzyNav{width:calc(100% - 8px);height:38px}
     .kulzzyNavBtn{height:32px;font-size:9px}
     #kulzzyContent{padding-top:45px!important}
     #kulzzyHomePageContent{padding-top:45px!important}
@@ -352,9 +337,12 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     </section>
 
     <section id="kulzzy-voters" class="kulzzySection">
-        <div id="kulzzyVotersHeading" style="padding:10px 12px;color:#ffd700;font-weight:bold;font-size:20px;">VOTERS</div>
+        <div id="kulzzyVotersHeading"
+             style="padding:10px 12px;color:#ffd700;font-weight:bold;font-size:20px">
+            VOTERS
+        </div>
         <div id="kulzzyVotersGrid" class="kulzzyVotersGrid"></div>
-        <div id="kulzzyVotersDetail" class="kulzzyVotersDetail" style="display:none;"></div>
+        <div id="kulzzyVotersDetail" class="kulzzyVotersDetail" style="display:none"></div>
     </section>
 
     <section id="kulzzy-wishes" class="kulzzySection">
@@ -371,13 +359,15 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
 </div>
 
-<!-- Overlays -->
 <div id="kulzzyHomePageContent"></div>
 <div id="kulzzyMorePageContent"></div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import {getDatabase,ref,get} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+import {initializeApp}
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {getDatabase,ref,get}
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
 const firebaseConfig={
     apiKey:"AIzaSyBH85NGWsSA5KcubbPdnmunwYZFZpj_CB0",
@@ -390,6 +380,7 @@ const firebaseConfig={
 };
 
 let db=null;
+
 try{
     db=getDatabase(initializeApp(firebaseConfig));
 }catch(error){
@@ -397,6 +388,7 @@ try{
 }
 
 const normalSections=["home","request","wishes","market","voters"];
+
 const sectionCache=Object.create(null);
 const sectionLoading=Object.create(null);
 
@@ -415,43 +407,63 @@ let kulzzyVoterPages=[];
 
 const $=id=>document.getElementById(id);
 
+/* EXTRACT PUBLISHED HTML */
 function getPageHTML(page){
     if(!page)return "";
-    if(typeof page.html==="string"&&page.html.trim())return page.html;
 
-    for(const field of ["content","writeUp","writeup","body","description","pageContent","htmlContent"]){
-        if(typeof page[field]==="string"&&page[field].trim())return page[field];
+    if(typeof page.html==="string"&&page.html.trim()){
+        return page.html;
+    }
+
+    for(const field of [
+        "content","writeUp","writeup","body","description",
+        "pageContent","htmlContent"
+    ]){
+        if(typeof page[field]==="string"&&page[field].trim()){
+            return page[field];
+        }
     }
 
     if(page.blocks&&typeof page.blocks==="object"){
         const blocks=Object.keys(page.blocks).map(id=>{
             const block=page.blocks[id]||{};
+
             return {
                 html:block.html||block.content||block.writeUp||"",
                 order:typeof block.order==="number"?block.order:0
             };
-        }).filter(block=>typeof block.html==="string"&&block.html.trim())
-          .sort((a,b)=>a.order-b.order);
+        }).filter(block=>
+            typeof block.html==="string"&&block.html.trim()
+        ).sort((a,b)=>a.order-b.order);
 
-        if(blocks.length)return blocks.map(block=>block.html).join("\n\n");
+        if(blocks.length){
+            return blocks.map(block=>block.html).join("\n\n");
+        }
     }
+
     return "";
 }
 
+/* RUN SCRIPTS INCLUDED IN PUBLISHED CONTENT */
 function executePublishedScripts(container){
     if(!container)return;
+
     container.querySelectorAll("script").forEach(oldScript=>{
         const newScript=document.createElement("script");
+
         Array.from(oldScript.attributes).forEach(attribute=>{
             newScript.setAttribute(attribute.name,attribute.value);
         });
+
         newScript.textContent=oldScript.textContent;
         oldScript.parentNode?.replaceChild(newScript,oldScript);
     });
 }
 
+/* PRESERVE TOUCH AND CLICK INTERACTION */
 function enablePublishedTouch(container){
     if(!container)return;
+
     container.style.pointerEvents="auto";
     container.style.touchAction="auto";
     container.style.overscrollBehavior="auto";
@@ -460,14 +472,17 @@ function enablePublishedTouch(container){
         "button,a,input,textarea,select,label,video,audio,canvas,iframe,[role='button'],[onclick]"
     ).forEach(element=>{
         element.style.pointerEvents="auto";
+        element.style.touchAction="auto";
     });
 }
 
+/* DISPLAY PUBLISHED SECTION */
 function displayNormalContent(section,html){
     const container=$("kulzzyPublished-"+section);
     if(!container)return;
 
     container.innerHTML="";
+
     if(!html||!html.trim()){
         sectionCache[section]="";
         return;
@@ -481,30 +496,44 @@ function displayNormalContent(section,html){
     wrapper.innerHTML=html;
 
     container.appendChild(wrapper);
+
     executePublishedScripts(wrapper);
     enablePublishedTouch(container);
+
     sectionCache[section]=container.innerHTML;
 }
 
+/* LOAD SECTIONS WITHOUT SHOWING LOADING MESSAGES */
 function loadNormalSection(section){
-    if(!normalSections.includes(section))return Promise.resolve();
+    if(!normalSections.includes(section)){
+        return Promise.resolve();
+    }
 
     const container=$("kulzzyPublished-"+section);
-    if(!container||!db)return Promise.resolve();
+
+    if(!container||!db){
+        return Promise.resolve();
+    }
 
     if(Object.prototype.hasOwnProperty.call(sectionCache,section)){
         if(container.innerHTML===""&&sectionCache[section]){
             container.innerHTML=sectionCache[section];
             enablePublishedTouch(container);
         }
+
         return Promise.resolve();
     }
 
-    if(sectionLoading[section])return sectionLoading[section];
+    if(sectionLoading[section]){
+        return sectionLoading[section];
+    }
 
     sectionLoading[section]=get(ref(db,"kulzzyContent/"+section))
         .then(snapshot=>{
-            const html=snapshot.exists()?getPageHTML(snapshot.val()):"";
+            const html=snapshot.exists()
+                ?getPageHTML(snapshot.val())
+                :"";
+
             displayNormalContent(section,html);
         })
         .catch(error=>{
@@ -517,9 +546,10 @@ function loadNormalSection(section){
     return sectionLoading[section];
 }
 
-/* HOME OVERLAY — CLOSE BUTTON REMOVED */
+/* HOME OVERLAY: NO CLOSE BUTTON, NO BACKGROUND, NO LOADING TEXT */
 function ensureHomeOverlay(){
     const overlay=$("kulzzyHomePageContent");
+
     if(!overlay||homeOverlayBuilt)return;
 
     overlay.innerHTML="";
@@ -529,6 +559,7 @@ function ensureHomeOverlay(){
     box.id="kulzzyHomeOverlayBox";
 
     overlay.appendChild(box);
+
     homeOverlayBuilt=true;
 }
 
@@ -538,14 +569,13 @@ function renderHomeOverlay(){
     const box=$("kulzzyHomeOverlayBox");
     if(!box)return;
 
+    /* Keep the area empty until content arrives. */
+    box.innerHTML="";
+
     if(homePageHTML){
         box.innerHTML=homePageHTML;
         executePublishedScripts(box);
         enablePublishedTouch(box);
-    }else if(!homePageLoaded){
-        box.innerHTML='<div style="padding:18px;color:#fff;text-align:center">Loading Home…</div>';
-    }else{
-        box.innerHTML="";
     }
 }
 
@@ -554,15 +584,22 @@ function openHomePage(){
     if(!overlay)return;
 
     ensureHomeOverlay();
+
     overlay.classList.add("open");
     renderHomeOverlay();
 
-    if(homePageLoaded||homePageLoading||!db)return;
+    if(homePageLoaded||homePageLoading||!db){
+        return;
+    }
 
     homePageLoading=get(ref(db,"kulzzyContent/home"))
         .then(snapshot=>{
-            homePageHTML=snapshot.exists()?getPageHTML(snapshot.val()):"";
+            homePageHTML=snapshot.exists()
+                ?getPageHTML(snapshot.val())
+                :"";
+
             homePageLoaded=true;
+
             displayNormalContent("home",homePageHTML);
 
             if(overlay.classList.contains("open")){
@@ -571,10 +608,6 @@ function openHomePage(){
         })
         .catch(error=>{
             console.error("Home loading error:",error);
-            const box=$("kulzzyHomeOverlayBox");
-            if(box&&!homePageHTML){
-                box.innerHTML='<div style="padding:18px;color:#fff;text-align:center">Home could not load. Please try again.</div>';
-            }
         })
         .finally(()=>{
             homePageLoading=null;
@@ -585,7 +618,7 @@ function closeHomePage(){
     $("kulzzyHomePageContent")?.classList.remove("open");
 }
 
-/* MORE PAGE MENU */
+/* MORE PAGE ICONS */
 function getMorePageIcon(title){
     const text=String(title||"").toLowerCase();
 
@@ -594,25 +627,41 @@ function getMorePageIcon(title){
     if(text.includes("chat"))return "💬";
     if(text.includes("radio"))return "📻";
     if(text.includes("program"))return "🎙️";
-    if(text.includes("business")||text.includes("market")||text.includes("service"))return "💼";
-    if(text.includes("birthday")||text.includes("celebration")||text.includes("birth"))return "🎂";
+
+    if(text.includes("business")||
+       text.includes("market")||
+       text.includes("service"))return "💼";
+
+    if(text.includes("birthday")||
+       text.includes("celebration")||
+       text.includes("birth"))return "🎂";
+
     if(text.includes("music")||text.includes("song"))return "🎵";
     if(text.includes("news"))return "📰";
     if(text.includes("event"))return "🎉";
-    if(text.includes("photo")||text.includes("picture")||text.includes("gallery"))return "🖼️";
+
+    if(text.includes("photo")||
+       text.includes("picture")||
+       text.includes("gallery"))return "🖼️";
+
     if(text.includes("video"))return "🎬";
     if(text.includes("live"))return "🔴";
     if(text.includes("request"))return "📝";
     if(text.includes("wish"))return "💝";
+
     if(text.includes("install")||text.includes("app"))return "📱";
+
     return "📄";
 }
 
+/* LOAD MORE PAGES WITHOUT A LOADING MESSAGE */
 function loadMorePages(){
     const menu=$("kulzzyMorePagesMenu");
+
     if(!menu||!db)return Promise.resolve();
 
     if(morePagesLoaded)return Promise.resolve();
+
     if(morePagesLoading)return morePagesLoading;
 
     morePagesLoading=get(ref(db,"kulzzyMorePages"))
@@ -621,6 +670,7 @@ function loadMorePages(){
 
             morePagesData=Object.keys(raw).map(id=>{
                 const page=raw[id]||{};
+
                 return {
                     id,
                     title:page.title||page.name||"Untitled Page",
@@ -633,6 +683,7 @@ function loadMorePages(){
 
             morePagesData.forEach(page=>{
                 const button=document.createElement("button");
+
                 button.type="button";
                 button.className="kulzzyMorePageButton";
 
@@ -645,21 +696,25 @@ function loadMorePages(){
                 title.textContent=page.title;
 
                 button.append(icon,title);
-                button.addEventListener("click",()=>showMorePage(page,button));
+
+                button.addEventListener("click",()=>{
+                    showMorePage(page,button);
+                });
+
                 fragment.appendChild(button);
             });
 
             menu.replaceChildren(fragment);
 
             if(!morePagesData.length){
-                menu.innerHTML='<div style="padding:15px;color:white">No additional pages available.</div>';
+                menu.innerHTML=
+                    '<div style="padding:15px;color:white">No additional pages available.</div>';
             }
 
             morePagesLoaded=true;
         })
         .catch(error=>{
             console.error("More pages loading error:",error);
-            menu.innerHTML='<div style="padding:15px;color:white">Could not load pages. Please try again.</div>';
         })
         .finally(()=>{
             morePagesLoading=null;
@@ -668,10 +723,11 @@ function loadMorePages(){
     return morePagesLoading;
 }
 
-/* OPEN MORE PAGE OVER THE NAVIGATION */
+/* OPEN A MORE PAGE */
 function showMorePage(page,button){
     const menu=$("kulzzyMorePagesMenu");
     const content=$("kulzzyMorePageContent");
+
     if(!content||!menu)return;
 
     document.querySelectorAll(".kulzzyMorePageButton")
@@ -682,6 +738,7 @@ function showMorePage(page,button){
     content.innerHTML="";
 
     const close=document.createElement("button");
+
     close.type="button";
     close.className="kulzzyMorePageClose";
     close.textContent="✕";
@@ -691,6 +748,7 @@ function showMorePage(page,button){
 
     const box=document.createElement("div");
     box.className="kulzzyMorePageContentBox";
+
     box.innerHTML=page.html||
         '<div style="padding:15px;color:white">This page has no content yet.</div>';
 
@@ -723,30 +781,43 @@ function closeMorePage(){
 
 /* VOTERS */
 function kulzzyVoterHtml(page){
-    if(typeof page.html==="string"&&page.html.trim())return page.html;
-    for(const key of ["content","writeUp","description","body"]){
-        if(typeof page[key]==="string"&&page[key].trim())return page[key];
+    if(typeof page.html==="string"&&page.html.trim()){
+        return page.html;
     }
+
+    for(const key of ["content","writeUp","description","body"]){
+        if(typeof page[key]==="string"&&page[key].trim()){
+            return page[key];
+        }
+    }
+
     return "";
 }
 
+/* LOAD VOTING COMPETITIONS WITHOUT LOADING TEXT */
 function loadKulzzyVoters(){
     const grid=$("kulzzyVotersGrid");
     const detail=$("kulzzyVotersDetail");
+
     if(!grid||!db)return Promise.resolve();
 
     if(kulzzyVotersLoaded)return Promise.resolve();
+
     if(kulzzyVotersLoading)return kulzzyVotersLoading;
 
-    grid.innerHTML='<div class="kulzzyVotersEmpty">Loading voting competitions…</div>';
+    /* Clear the grid instead of displaying a loading message. */
+    grid.innerHTML="";
 
     kulzzyVotersLoading=get(ref(db,"kulzzyVotersPages"))
         .then(snapshot=>{
             const raw=snapshot.exists()?snapshot.val():{};
 
-            kulzzyVoterPages=Object.keys(raw).map(id=>({id,...(raw[id]||{})}))
+            kulzzyVoterPages=Object.keys(raw)
+                .map(id=>({id,...(raw[id]||{})}))
                 .filter(page=>page.published!==false)
-                .sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+                .sort((a,b)=>
+                    (Number(a.order)||0)-(Number(b.order)||0)
+                );
 
             grid.innerHTML="";
 
@@ -756,7 +827,9 @@ function loadKulzzyVoters(){
             }
 
             if(!kulzzyVoterPages.length){
-                grid.innerHTML='<div class="kulzzyVotersEmpty">No voting competitions are available right now. Please check again soon.</div>';
+                grid.innerHTML=
+                    '<div class="kulzzyVotersEmpty">No voting competitions are available right now.</div>';
+
                 kulzzyVotersLoaded=true;
                 return;
             }
@@ -765,32 +838,51 @@ function loadKulzzyVoters(){
 
             kulzzyVoterPages.forEach(page=>{
                 const card=document.createElement("button");
+
                 card.type="button";
                 card.className="kulzzyVoterCard";
 
                 const image=document.createElement("img");
+
                 image.loading="lazy";
                 image.alt=page.title||"Voting competition";
+
                 image.src=page.image||page.imageUrl||
                     "data:image/svg+xml;charset=UTF-8,"+
-                    encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#10274c"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ffd700" font-size="24">KULZZY VOTERS</text></svg>');
-                image.onerror=()=>{image.style.display="none";};
+                    encodeURIComponent(
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">'+
+                        '<rect width="100%" height="100%" fill="#10274c"/>'+
+                        '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ffd700" font-size="24">KULZZY VOTERS</text>'+
+                        '</svg>'
+                    );
+
+                image.onerror=()=>{
+                    image.style.display="none";
+                };
 
                 const title=document.createElement("span");
+
                 title.className="kulzzyVoterCardTitle";
                 title.textContent=page.title||"Voting Competition";
 
                 card.append(image,title);
-                card.addEventListener("click",()=>openKulzzyVoterPage(page));
+
+                card.addEventListener("click",()=>{
+                    openKulzzyVoterPage(page);
+                });
+
                 fragment.appendChild(card);
             });
 
             grid.appendChild(fragment);
+
             kulzzyVotersLoaded=true;
         })
         .catch(error=>{
             console.error("Could not load Voters pages:",error);
-            grid.innerHTML='<div class="kulzzyVotersEmpty">Could not load voting competitions. Please refresh and try again.</div>';
+
+            grid.innerHTML=
+                '<div class="kulzzyVotersEmpty">Voting competitions could not be retrieved. Please check your connection and try again.</div>';
         })
         .finally(()=>{
             kulzzyVotersLoading=null;
@@ -799,9 +891,11 @@ function loadKulzzyVoters(){
     return kulzzyVotersLoading;
 }
 
+/* OPEN A VOTING COMPETITION */
 function openKulzzyVoterPage(page){
     const grid=$("kulzzyVotersGrid");
     const detail=$("kulzzyVotersDetail");
+
     if(!grid||!detail)return;
 
     grid.style.display="none";
@@ -809,9 +903,11 @@ function openKulzzyVoterPage(page){
     detail.innerHTML="";
 
     const back=document.createElement("button");
+
     back.type="button";
     back.className="kulzzyVoterBack";
     back.textContent="← BACK TO VOTING COMPETITIONS";
+
     back.addEventListener("click",()=>{
         detail.style.display="none";
         detail.innerHTML="";
@@ -820,6 +916,7 @@ function openKulzzyVoterPage(page){
     });
 
     const title=document.createElement("div");
+
     title.className="kulzzyVoterDetailTitle";
     title.textContent=page.title||"Voting Competition";
 
@@ -832,28 +929,39 @@ function openKulzzyVoterPage(page){
 
     if(target.trim()){
         const frame=document.createElement("iframe");
+
         frame.src=target.trim();
         frame.title=page.title||"Voting Competition";
         frame.loading="eager";
-        frame.setAttribute("allow","autoplay; clipboard-write; encrypted-media; fullscreen");
+
+        frame.setAttribute(
+            "allow",
+            "autoplay; clipboard-write; encrypted-media; fullscreen"
+        );
+
         body.appendChild(frame);
     }else{
         const html=kulzzyVoterHtml(page);
+
         if(html){
             body.innerHTML=html;
+
             executePublishedScripts(body);
             enablePublishedTouch(body);
         }else{
-            body.innerHTML='<div class="kulzzyVotersEmpty">This competition has no page content or voting link yet.</div>';
+            body.innerHTML=
+                '<div class="kulzzyVotersEmpty">This competition has no page content or voting link yet.</div>';
         }
     }
 
     $("kulzzyContent").scrollTop=0;
 }
 
-/* NAVIGATION */
+/* NAVIGATION — ALL BUTTONS RESPOND TO CLICKS */
 function openSection(section,button){
-    if(!normalSections.includes(section)&&section!=="more")return;
+    if(!normalSections.includes(section)&&section!=="more"){
+        return;
+    }
 
     const homeOverlay=$("kulzzyHomePageContent");
     const moreContent=$("kulzzyMorePageContent");
@@ -863,14 +971,19 @@ function openSection(section,button){
         item.classList.toggle("active",item===button);
     });
 
+    /* Close the Home overlay when another tab is selected. */
     if(section!=="home"&&homeOverlay){
         homeOverlay.classList.remove("open");
     }
 
+    /* Close an open More page when another tab is selected. */
     if(section!=="more"&&moreContent){
         moreContent.classList.remove("open");
         moreContent.innerHTML="";
-        if(moreMenu)moreMenu.style.display="flex";
+
+        if(moreMenu){
+            moreMenu.style.display="flex";
+        }
     }
 
     try{
@@ -880,12 +993,16 @@ function openSection(section,button){
     if(section==="home"){
         document.querySelectorAll(".kulzzySection")
             .forEach(item=>item.classList.remove("active"));
+
         openHomePage();
         return;
     }
 
     document.querySelectorAll(".kulzzySection").forEach(item=>{
-        item.classList.toggle("active",item.id==="kulzzy-"+section);
+        item.classList.toggle(
+            "active",
+            item.id==="kulzzy-"+section
+        );
     });
 
     if(section==="more"){
@@ -897,7 +1014,10 @@ function openSection(section,button){
         const grid=$("kulzzyVotersGrid");
         const detail=$("kulzzyVotersDetail");
 
-        if(grid)grid.style.display="grid";
+        if(grid){
+            grid.style.display="grid";
+        }
+
         if(detail){
             detail.style.display="none";
             detail.innerHTML="";
@@ -910,44 +1030,60 @@ function openSection(section,button){
     loadNormalSection(section);
 }
 
+/* SUPPORT EXISTING PUBLISHED BUTTONS */
 window.kulzzyOpen=function(section,button){
     const actualButton=button||
-        document.querySelector('.kulzzyNavBtn[data-section="'+section+'"]');
+        document.querySelector(
+            '.kulzzyNavBtn[data-section="'+section+'"]'
+        );
+
     openSection(section,actualButton);
 };
 
+/* REGISTER NAVIGATION CLICKS */
 document.querySelectorAll(".kulzzyNavBtn").forEach(button=>{
-    button.addEventListener("click",()=>{
+    button.addEventListener("click",event=>{
+        event.preventDefault();
+
         openSection(button.dataset.section,button);
-    },{passive:true});
+    });
 });
 
 /* STARTUP */
 let savedSection=null;
+
 try{
     savedSection=localStorage.getItem("kulzzyLastSection");
 }catch(error){}
 
-if(!savedSection||(!normalSections.includes(savedSection)&&savedSection!=="more")){
+if(
+    !savedSection||
+    (!normalSections.includes(savedSection)&&savedSection!=="more")
+){
     savedSection="home";
 }
 
 const initialButton=
-    document.querySelector('.kulzzyNavBtn[data-section="'+savedSection+'"]')||
-    document.querySelector('.kulzzyNavBtn[data-section="home"]');
+    document.querySelector(
+        '.kulzzyNavBtn[data-section="'+savedSection+'"]'
+    )||
+    document.querySelector(
+        '.kulzzyNavBtn[data-section="home"]'
+    );
 
 openSection(savedSection,initialButton);
 
-/* PRELOAD PUBLISHED SECTIONS IN THE BACKGROUND */
+/* PRELOAD PUBLISHED CONTENT IN PARALLEL */
 window.setTimeout(()=>{
     if(!db)return;
 
-    ["request","wishes","market"].forEach(section=>{
-        if(!Object.prototype.hasOwnProperty.call(sectionCache,section)){
-            loadNormalSection(section);
-        }
-    });
-},500);
+    Promise.allSettled([
+        loadNormalSection("request"),
+        loadNormalSection("wishes"),
+        loadNormalSection("market")
+    ]);
+},100);
+
 </script>
 
 </body>
