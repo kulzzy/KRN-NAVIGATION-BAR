@@ -757,6 +757,20 @@ body{
     display:none;
 }
 
+
+/* VOTERS COMPETITION CARDS */
+.kulzzyVotersGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:10px 12px 24px;}
+.kulzzyVoterCard{display:block;width:100%;padding:0;overflow:hidden;border:1px solid rgba(255,215,0,.6);border-radius:14px;background:#07152f;color:#fff;text-align:left;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+.kulzzyVoterCard img{display:block;width:100%;height:170px;object-fit:cover;background:#10274c;}
+.kulzzyVoterCardTitle{display:block;padding:11px 10px;font-size:14px;font-weight:bold;line-height:1.35;color:#ffd700;}
+.kulzzyVotersEmpty{grid-column:1/-1;text-align:center;padding:28px 16px;color:#ddd;background:rgba(7,21,47,.8);border:1px solid rgba(255,215,0,.2);border-radius:12px;}
+.kulzzyVotersDetail{padding:8px 12px 24px;}
+.kulzzyVoterBack{display:block;width:100%;border:0;border-radius:10px;padding:13px;margin:0 0 12px;background:#ffd700;color:#07152f;font-weight:bold;font-size:15px;}
+.kulzzyVoterDetailTitle{font-size:20px;color:#ffd700;font-weight:bold;margin:10px 0 14px;}
+.kulzzyVoterDetailBody{width:100%;overflow:visible;background:transparent;color:white;}
+.kulzzyVoterDetailBody iframe{display:block;width:100%;min-height:75vh;border:0;background:white;border-radius:8px;}
+@media(max-width:360px){.kulzzyVotersGrid{gap:8px;padding:8px}.kulzzyVoterCard img{height:135px}.kulzzyVoterCardTitle{font-size:12px;padding:9px}}
+
 </style>
 </head>
 
@@ -779,10 +793,8 @@ body{
     <button
         type="button"
         class="kulzzyNavBtn"
-        data-section="request">
-        <span id="kulzzyRequestButtonName">
-            👑 FACE OF KULZZY RADIO
-        </span>
+        data-section="voters">
+        🗳️ VOTERS
     </button>
 
     <button
@@ -836,6 +848,15 @@ body{
             class="kulzzyPublishedContent">
         </div>
 
+    </section>
+
+
+    <section
+        id="kulzzy-voters"
+        class="kulzzySection">
+        <div id="kulzzyVotersHeading" style="padding:12px 14px;color:#ffd700;font-weight:bold;font-size:20px;">VOTERS</div>
+        <div id="kulzzyVotersGrid" class="kulzzyVotersGrid"></div>
+        <div id="kulzzyVotersDetail" class="kulzzyVotersDetail" style="display:none;"></div>
     </section>
 
 
@@ -1044,7 +1065,8 @@ const normalSections = [
     "home",
     "request",
     "wishes",
-    "market"
+    "market",
+    "voters"
 ];
 
 
@@ -1941,7 +1963,8 @@ function openSection(
 
 
     if(
-        normalSections.includes(section)
+        normalSections.includes(section) &&
+        section !== "voters"
     ){
 
         loadNormalSection(
@@ -1952,9 +1975,15 @@ function openSection(
 
 
     if(section === "more"){
-
         loadMorePages();
+    }
 
+    if(section === "voters"){
+        const grid = document.getElementById("kulzzyVotersGrid");
+        const detail = document.getElementById("kulzzyVotersDetail");
+        if(grid) grid.style.display = "grid";
+        if(detail){ detail.style.display = "none"; detail.innerHTML = ""; }
+        loadKulzzyVoters(true);
     }
 
 }
@@ -2551,6 +2580,77 @@ function showMorePage(
 
 }
 
+
+/* =====================================================
+   VOTERS: DYNAMIC COMPETITION PAGES
+===================================================== */
+let kulzzyVotersLoaded = false;
+let kulzzyVotersLoading = null;
+let kulzzyVoterPages = [];
+
+function kulzzyVoterHtml(page){
+    if(typeof page.html === "string" && page.html.trim()) return page.html;
+    for(const key of ["content","writeUp","description","body"]){
+        if(typeof page[key] === "string" && page[key].trim()) return page[key];
+    }
+    return "";
+}
+
+async function loadKulzzyVoters(force){
+    const grid = document.getElementById("kulzzyVotersGrid");
+    const detail = document.getElementById("kulzzyVotersDetail");
+    if(!grid || !db) return;
+    if(force) kulzzyVotersLoaded = false;
+    if(kulzzyVotersLoaded) return;
+    if(kulzzyVotersLoading) return kulzzyVotersLoading;
+    grid.innerHTML = '<div class="kulzzyVotersEmpty">Loading voting competitions…</div>';
+    kulzzyVotersLoading = get(ref(db,"kulzzyVotersPages")).then(snapshot=>{
+        grid.innerHTML = "";
+        if(detail){ detail.style.display="none"; detail.innerHTML=""; }
+        const raw = snapshot.exists() ? snapshot.val() : {};
+        kulzzyVoterPages = Object.keys(raw).map(id=>({id,...(raw[id]||{})}))
+            .filter(page=>page.published !== false)
+            .sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+        if(!kulzzyVoterPages.length){
+            grid.innerHTML='<div class="kulzzyVotersEmpty">No voting competitions are available right now. Please check again soon.</div>';
+            kulzzyVotersLoaded=true; return;
+        }
+        kulzzyVoterPages.forEach(page=>{
+            const card=document.createElement("button"); card.type="button"; card.className="kulzzyVoterCard";
+            const image=document.createElement("img"); image.loading="lazy"; image.alt=page.title||"Voting competition";
+            image.src=page.image||page.imageUrl||"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#10274c"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ffd700" font-size="24">KULZZY VOTERS</text></svg>');
+            image.onerror=()=>{image.style.display="none";};
+            const title=document.createElement("span"); title.className="kulzzyVoterCardTitle"; title.textContent=page.title||"Voting Competition";
+            card.append(image,title); card.addEventListener("click",()=>openKulzzyVoterPage(page)); grid.appendChild(card);
+        });
+        kulzzyVotersLoaded=true;
+    }).catch(error=>{
+        console.error("Could not load Voters pages:",error);
+        grid.innerHTML='<div class="kulzzyVotersEmpty">Could not load voting competitions. Please refresh and try again.</div>';
+    }).finally(()=>{kulzzyVotersLoading=null;});
+    return kulzzyVotersLoading;
+}
+
+function openKulzzyVoterPage(page){
+    const grid=document.getElementById("kulzzyVotersGrid");
+    const detail=document.getElementById("kulzzyVotersDetail");
+    if(!grid||!detail) return;
+    grid.style.display="none"; detail.style.display="block"; detail.innerHTML="";
+    const back=document.createElement("button"); back.type="button"; back.className="kulzzyVoterBack"; back.textContent="← BACK TO VOTING COMPETITIONS";
+    back.addEventListener("click",()=>{detail.style.display="none";detail.innerHTML="";grid.style.display="grid";document.getElementById("kulzzyContent").scrollTop=0;});
+    detail.appendChild(back);
+    const title=document.createElement("div");title.className="kulzzyVoterDetailTitle";title.textContent=page.title||"Voting Competition";detail.appendChild(title);
+    const body=document.createElement("div");body.className="kulzzyVoterDetailBody";detail.appendChild(body);
+    const target=page.url||page.pageUrl||page.link||"";
+    if(target.trim()){
+        const frame=document.createElement("iframe");frame.src=target.trim();frame.title=page.title||"Voting Competition";frame.loading="lazy";frame.setAttribute("allow","autoplay; clipboard-write; encrypted-media; fullscreen");body.appendChild(frame);
+    }else{
+        const html=kulzzyVoterHtml(page);
+        if(html){body.innerHTML=html;executePublishedScripts(body);enablePublishedTouch(body);}
+        else body.innerHTML='<div class="kulzzyVotersEmpty">This competition has no page content or voting link yet.</div>';
+    }
+    const scroll=document.getElementById("kulzzyContent");if(scroll)scroll.scrollTop=0;
+}
 
 /* =====================================================
    START HOME
