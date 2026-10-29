@@ -16,7 +16,7 @@ html,body{
 }
 body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
-/* NAVIGATION — SMALLER BACKGROUND, STILL AT TOP 0PX */
+/* NAVIGATION — REMAINS AT THE TOP */
 #kulzzyNav{
     position:fixed;top:0px;left:50%;transform:translateX(-50%);
     width:calc(100% - 16px);max-width:520px;height:40px;
@@ -34,8 +34,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     cursor:pointer;white-space:nowrap;
     transition:background .08s linear,color .08s linear;
     -webkit-tap-highlight-color:transparent;
-    pointer-events:auto;touch-action:manipulation;
-    padding:0 2px
+    pointer-events:auto;touch-action:manipulation;padding:0 2px
 }
 .kulzzyNavBtn:hover{background:rgba(255,215,0,.15);color:#ffd700}
 .kulzzyNavBtn:active{background:rgba(255,215,0,.25)}
@@ -43,6 +42,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
 /* MAIN SCROLL AREA */
 #kulzzyContent{
+    position:relative;z-index:1;
     width:100%!important;max-width:none!important;min-width:0;
     margin:0!important;padding:48px 0 30px!important;
     height:100dvh!important;min-height:100dvh!important;
@@ -108,7 +108,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 .kulzzyPublishedContent table{max-width:100%;pointer-events:auto}
 
-/* MORE PAGES */
+/* MORE MENU */
 #kulzzyMorePagesMenu{
     width:100%;max-width:none;margin:0;padding:0;
     display:flex;flex-direction:column;gap:8px;
@@ -136,29 +136,75 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 }
 .kulzzyMorePageTitle{flex:1;min-width:0;line-height:1.3;pointer-events:none}
 
+/*
+  MORE PAGE OVERLAY:
+  It is placed outside the navigation's stacking context and has a
+  higher stacking order, so its close button cannot be covered by nav.
+*/
 #kulzzyMorePageContent{
-    position:relative;top:auto;left:auto;width:100%;
-    min-height:calc(100dvh - 48px);margin:0;padding:0 0 25px;
-    background:#07152f;z-index:1;display:none;
-    overflow:visible!important;pointer-events:auto!important;
-    touch-action:auto!important;overscroll-behavior:auto!important
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    padding:52px 0 24px!important;
+    background:#07152f;
+    z-index:2147483000!important;
+    display:none;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    pointer-events:auto!important;
+    touch-action:pan-y!important
 }
-#kulzzyMorePageContent.open{display:block}
+#kulzzyMorePageContent::-webkit-scrollbar{display:none}
+#kulzzyMorePageContent.open{display:block!important}
+
 .kulzzyMorePageContentBox{
+    position:relative;
+    z-index:1;
     width:100%;max-width:none;margin:0;padding:0 0 25px;
-    background:transparent;color:inherit;border:0;border-radius:0;
+    background:transparent;color:white;border:0;border-radius:0;
     overflow:visible!important;line-height:1.6;
     pointer-events:auto!important;touch-action:auto!important
 }
-.kulzzyMorePageClose,.kulzzyHomePageClose{
-    position:fixed;top:8px;right:8px;width:34px;height:34px;
-    border:1px solid rgba(255,215,0,.5);border-radius:9px;
-    background:#07152f;color:#ffd700;font-size:20px;font-weight:bold;
-    cursor:pointer;z-index:1000000001;display:flex;
-    align-items:center;justify-content:center;
-    box-shadow:0 2px 8px rgba(0,0,0,.3);
-    -webkit-tap-highlight-color:transparent;touch-action:manipulation
+
+/* CLOSE BUTTONS — ABOVE NAVIGATION AND PAGE CONTENT */
+.kulzzyMorePageClose,
+.kulzzyHomePageClose{
+    position:fixed!important;
+    top:6px!important;
+    right:8px!important;
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    min-height:36px!important;
+    border:1px solid rgba(255,215,0,.7)!important;
+    border-radius:9px!important;
+    background:#07152f!important;
+    color:#ffd700!important;
+    font-size:21px!important;
+    font-weight:bold!important;
+    line-height:1!important;
+    cursor:pointer!important;
+    z-index:2147483647!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-shadow:0 2px 8px rgba(0,0,0,.5)!important;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation!important;
+    pointer-events:auto!important
 }
+.kulzzyMorePageClose:active,
+.kulzzyHomePageClose:active{
+    background:#ffd700!important;color:#07152f!important
+}
+
 .kulzzyMorePageContentBox *,
 .kulzzyHomePageContentBox *{box-sizing:border-box;max-width:100%}
 .kulzzyMorePageContentBox img,
@@ -203,18 +249,29 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
 /* HOME OVERLAY */
 #kulzzyHomePageContent{
-    position:fixed;top:0;left:0;width:100%;height:100dvh;
-    min-height:100dvh;margin:0;padding:48px 0 25px;
-    background:#07152f;z-index:100000000;display:none;
-    overflow-y:auto;overflow-x:hidden;pointer-events:auto;
-    touch-action:auto;overscroll-behavior:auto;
-    -webkit-overflow-scrolling:touch;scrollbar-width:none
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    margin:0!important;
+    padding:48px 0 25px!important;
+    background:#07152f;
+    z-index:2147482000!important;
+    display:none;
+    overflow-y:auto;
+    overflow-x:hidden;
+    pointer-events:auto;
+    touch-action:auto;
+    overscroll-behavior:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none
 }
 #kulzzyHomePageContent::-webkit-scrollbar{display:none}
-#kulzzyHomePageContent.open{display:block}
+#kulzzyHomePageContent.open{display:block!important}
 .kulzzyHomePageContentBox{
     width:100%;max-width:none;margin:0;padding:0 0 25px;
-    background:transparent;color:inherit;overflow:visible!important;
+    background:transparent;color:white;overflow:visible!important;
     line-height:1.6;pointer-events:auto!important;touch-action:auto!important
 }
 
@@ -263,7 +320,13 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     #kulzzyNav{width:calc(100% - 8px);top:0px;height:38px}
     .kulzzyNavBtn{height:32px;font-size:9px}
     #kulzzyContent{padding-top:45px!important}
-    #kulzzyHomePageContent{padding-top:45px}
+    #kulzzyHomePageContent{padding-top:45px!important}
+    #kulzzyMorePageContent{padding-top:48px!important}
+    .kulzzyMorePageClose,.kulzzyHomePageClose{
+        top:5px!important;right:5px!important;
+        width:34px!important;height:34px!important;
+        min-width:34px!important;min-height:34px!important
+    }
     .kulzzyVotersGrid{gap:7px;padding:7px}
     .kulzzyVoterCard img{height:130px}
     .kulzzyVoterCardTitle{font-size:12px;padding:8px}
@@ -310,12 +373,13 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
     <section id="kulzzy-more" class="kulzzySection">
         <div id="kulzzyMorePagesMenu"></div>
-        <div id="kulzzyMorePageContent"></div>
     </section>
 
 </div>
 
+<!-- Overlays are outside the main content and navigation containers. -->
 <div id="kulzzyHomePageContent"></div>
+<div id="kulzzyMorePageContent"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
@@ -428,7 +492,6 @@ function displayNormalContent(section,html){
     sectionCache[section]=container.innerHTML;
 }
 
-/* Load content once and reuse the cached result on later clicks. */
 function loadNormalSection(section){
     if(!normalSections.includes(section))return Promise.resolve();
 
@@ -460,7 +523,7 @@ function loadNormalSection(section){
     return sectionLoading[section];
 }
 
-/* HOME — build the overlay only once; don't clear and rebuild it on every click. */
+/* HOME OVERLAY */
 function ensureHomeOverlay(){
     const overlay=$("kulzzyHomePageContent");
     if(!overlay||homeOverlayBuilt)return;
@@ -505,8 +568,6 @@ function openHomePage(){
 
     ensureHomeOverlay();
     overlay.classList.add("open");
-
-    /* Show the page immediately while Firebase loads in the background. */
     renderHomeOverlay();
 
     if(homePageLoaded||homePageLoading||!db)return;
@@ -515,10 +576,8 @@ function openHomePage(){
         .then(snapshot=>{
             homePageHTML=snapshot.exists()?getPageHTML(snapshot.val()):"";
             homePageLoaded=true;
-
             displayNormalContent("home",homePageHTML);
 
-            /* Update the visible overlay only if Home is still open. */
             if(overlay.classList.contains("open")){
                 renderHomeOverlay();
             }
@@ -536,11 +595,10 @@ function openHomePage(){
 }
 
 function closeHomePage(){
-    const overlay=$("kulzzyHomePageContent");
-    if(overlay)overlay.classList.remove("open");
+    $("kulzzyHomePageContent")?.classList.remove("open");
 }
 
-/* MORE PAGES — cache the list and each page's HTML. */
+/* MORE PAGE MENU */
 function getMorePageIcon(title){
     const text=String(title||"").toLowerCase();
 
@@ -565,8 +623,7 @@ function getMorePageIcon(title){
 
 function loadMorePages(){
     const menu=$("kulzzyMorePagesMenu");
-    const content=$("kulzzyMorePageContent");
-    if(!menu||!content||!db)return Promise.resolve();
+    if(!menu||!db)return Promise.resolve();
 
     if(morePagesLoaded)return Promise.resolve();
     if(morePagesLoading)return morePagesLoading;
@@ -624,12 +681,15 @@ function loadMorePages(){
     return morePagesLoading;
 }
 
+/* OPEN MORE PAGE OVER THE NAVIGATION */
 function showMorePage(page,button){
     const menu=$("kulzzyMorePagesMenu");
     const content=$("kulzzyMorePageContent");
     if(!content||!menu)return;
 
-    document.querySelectorAll(".kulzzyMorePageButton").forEach(item=>item.classList.remove("active"));
+    document.querySelectorAll(".kulzzyMorePageButton")
+        .forEach(item=>item.classList.remove("active"));
+
     if(button)button.classList.add("active");
 
     content.innerHTML="";
@@ -639,27 +699,43 @@ function showMorePage(page,button){
     close.className="kulzzyMorePageClose";
     close.textContent="✕";
     close.setAttribute("aria-label","Close page");
-    close.addEventListener("click",()=>{
-        content.classList.remove("open");
-        content.innerHTML="";
-        menu.style.display="flex";
-        document.querySelectorAll(".kulzzyMorePageButton").forEach(item=>item.classList.remove("active"));
-    });
+
+    close.addEventListener("click",closeMorePage);
 
     const box=document.createElement("div");
     box.className="kulzzyMorePageContentBox";
-    box.innerHTML=page.html||'<div style="padding:15px;color:white">This page has no content yet.</div>';
+    box.innerHTML=page.html||
+        '<div style="padding:15px;color:white">This page has no content yet.</div>';
 
     content.append(close,box);
-    executePublishedScripts(box);
-    enablePublishedTouch(box);
+
+    /* The overlay is shown above the navigation, with its close button on top. */
+    content.classList.add("open");
+    content.scrollTop=0;
 
     menu.style.display="none";
-    content.classList.add("open");
-    $("kulzzyContent").scrollTop=0;
+
+    executePublishedScripts(box);
+    enablePublishedTouch(box);
 }
 
-/* VOTERS — load only once. Do not force a fresh Firebase request on every tap. */
+function closeMorePage(){
+    const content=$("kulzzyMorePageContent");
+    const menu=$("kulzzyMorePagesMenu");
+
+    if(content){
+        content.classList.remove("open");
+        content.innerHTML="";
+        content.scrollTop=0;
+    }
+
+    if(menu)menu.style.display="flex";
+
+    document.querySelectorAll(".kulzzyMorePageButton")
+        .forEach(item=>item.classList.remove("active"));
+}
+
+/* VOTERS */
 function kulzzyVoterHtml(page){
     if(typeof page.html==="string"&&page.html.trim())return page.html;
     for(const key of ["content","writeUp","description","body"]){
@@ -789,7 +865,7 @@ function openKulzzyVoterPage(page){
     $("kulzzyContent").scrollTop=0;
 }
 
-/* NAVIGATION — change the screen immediately; loading happens afterwards. */
+/* NAVIGATION */
 function openSection(section,button){
     if(!normalSections.includes(section)&&section!=="more")return;
 
@@ -797,12 +873,11 @@ function openSection(section,button){
     const moreContent=$("kulzzyMorePageContent");
     const moreMenu=$("kulzzyMorePagesMenu");
 
-    /* Update the active icon immediately. */
     document.querySelectorAll(".kulzzyNavBtn").forEach(item=>{
         item.classList.toggle("active",item===button);
     });
 
-    /* Close overlays without rebuilding their cached content. */
+    /* Close overlays when changing navigation sections. */
     if(section!=="home"&&homeOverlay){
         homeOverlay.classList.remove("open");
     }
@@ -818,12 +893,12 @@ function openSection(section,button){
     }catch(error){}
 
     if(section==="home"){
-        document.querySelectorAll(".kulzzySection").forEach(item=>item.classList.remove("active"));
+        document.querySelectorAll(".kulzzySection")
+            .forEach(item=>item.classList.remove("active"));
         openHomePage();
         return;
     }
 
-    /* Show the requested section without waiting for Firebase. */
     document.querySelectorAll(".kulzzySection").forEach(item=>{
         item.classList.toggle("active",item.id==="kulzzy-"+section);
     });
@@ -851,7 +926,8 @@ function openSection(section,button){
 }
 
 window.kulzzyOpen=function(section,button){
-    const actualButton=button||document.querySelector('.kulzzyNavBtn[data-section="'+section+'"]');
+    const actualButton=button||
+        document.querySelector('.kulzzyNavBtn[data-section="'+section+'"]');
     openSection(section,actualButton);
 };
 
@@ -861,7 +937,7 @@ document.querySelectorAll(".kulzzyNavBtn").forEach(button=>{
     },{passive:true});
 });
 
-/* STARTUP: show Home immediately rather than waiting for Firebase. */
+/* STARTUP */
 let savedSection=null;
 try{
     savedSection=localStorage.getItem("kulzzyLastSection");
@@ -871,12 +947,13 @@ if(!savedSection||(!normalSections.includes(savedSection)&&savedSection!=="more"
     savedSection="home";
 }
 
-const initialButton=document.querySelector('.kulzzyNavBtn[data-section="'+savedSection+'"]')
-    ||document.querySelector('.kulzzyNavBtn[data-section="home"]');
+const initialButton=
+    document.querySelector('.kulzzyNavBtn[data-section="'+savedSection+'"]')||
+    document.querySelector('.kulzzyNavBtn[data-section="home"]');
 
 openSection(savedSection,initialButton);
 
-/* Quiet preload: do not block taps or delay navigation. */
+/* PRELOAD PUBLISHED SECTIONS IN THE BACKGROUND */
 window.setTimeout(()=>{
     if(!db)return;
 
@@ -886,7 +963,7 @@ window.setTimeout(()=>{
         }
     });
 },500);
-
 </script>
+
 </body>
 </html>
