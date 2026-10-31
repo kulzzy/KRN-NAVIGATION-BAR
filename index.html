@@ -219,8 +219,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyHomePageContentBox ul,
 .kulzzyHomePageContentBox ol{padding-left:25px}
 
-/* HOME OVERLAY
-   Transparent and below the navigation, so every navigation button works. */
+/* HOME OVERLAY */
 #kulzzyHomePageContent{
     position:fixed!important;
     inset:0!important;
@@ -243,7 +242,6 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 #kulzzyHomePageContent::-webkit-scrollbar{display:none}
 #kulzzyHomePageContent.open{display:block!important}
 
-/* Keep navigation above Home */
 #kulzzyNav{z-index:2147483647!important}
 
 .kulzzyHomePageContentBox{
@@ -251,6 +249,23 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     background:transparent!important;color:white;
     overflow:visible!important;line-height:1.6;
     pointer-events:auto!important;touch-action:auto!important
+}
+
+/* STATUS AND RETRY MESSAGES */
+.kulzzyPageStatus{
+    margin:10px;padding:16px;
+    border:1px solid rgba(255,215,0,.45);
+    border-radius:10px;
+    background:rgba(7,21,47,.94);
+    color:#fff;text-align:center;line-height:1.5;
+    overflow-wrap:anywhere
+}
+.kulzzyRetryButton{
+    margin-top:12px;padding:10px 18px;
+    border:0;border-radius:8px;
+    background:#ffd700;color:#07152f;
+    font-weight:bold;cursor:pointer;
+    touch-action:manipulation
 }
 
 /* VOTING COMPETITION CARDS */
@@ -407,6 +422,31 @@ let kulzzyVoterPages=[];
 
 const $=id=>document.getElementById(id);
 
+/* SHOW ERRORS INSTEAD OF LEAVING PAGES BLANK */
+function showPageStatus(container,message,retry){
+    if(!container)return;
+
+    container.innerHTML="";
+
+    const box=document.createElement("div");
+    box.className="kulzzyPageStatus";
+
+    const messageText=document.createElement("div");
+    messageText.textContent=message;
+    box.appendChild(messageText);
+
+    if(typeof retry==="function"){
+        const button=document.createElement("button");
+        button.type="button";
+        button.className="kulzzyRetryButton";
+        button.textContent="TRY AGAIN";
+        button.addEventListener("click",retry);
+        box.appendChild(button);
+    }
+
+    container.appendChild(box);
+}
+
 /* EXTRACT PUBLISHED HTML */
 function getPageHTML(page){
     if(!page)return "";
@@ -503,15 +543,21 @@ function displayNormalContent(section,html){
     sectionCache[section]=container.innerHTML;
 }
 
-/* LOAD SECTIONS WITHOUT SHOWING LOADING MESSAGES */
+/* LOAD PUBLISHED SECTIONS WITH VISIBLE ERRORS AND RETRIES */
 function loadNormalSection(section){
     if(!normalSections.includes(section)){
         return Promise.resolve();
     }
 
     const container=$("kulzzyPublished-"+section);
+    if(!container)return Promise.resolve();
 
-    if(!container||!db){
+    if(!db){
+        showPageStatus(
+            container,
+            "The Firebase connection did not start. Check your connection and reload this page.",
+            ()=>loadNormalSection(section)
+        );
         return Promise.resolve();
     }
 
@@ -519,6 +565,15 @@ function loadNormalSection(section){
         if(container.innerHTML===""&&sectionCache[section]){
             container.innerHTML=sectionCache[section];
             enablePublishedTouch(container);
+        }else if(!sectionCache[section]&&container.innerHTML===""){
+            showPageStatus(
+                container,
+                "No published content was found for this section. Check that the page has been published in the admin panel.",
+                ()=>{
+                    delete sectionCache[section];
+                    loadNormalSection(section);
+                }
+            );
         }
 
         return Promise.resolve();
@@ -535,9 +590,29 @@ function loadNormalSection(section){
                 :"";
 
             displayNormalContent(section,html);
+
+            if(!html.trim()){
+                showPageStatus(
+                    container,
+                    "No published content was found for this section. Check the published page and its Firebase path.",
+                    ()=>{
+                        delete sectionCache[section];
+                        loadNormalSection(section);
+                    }
+                );
+            }
         })
         .catch(error=>{
             console.error("Could not load section:",section,error);
+
+            showPageStatus(
+                container,
+                "This page could not load from Firebase. Check your internet connection or database permissions, then try again.",
+                ()=>{
+                    delete sectionCache[section];
+                    loadNormalSection(section);
+                }
+            );
         })
         .finally(()=>{
             delete sectionLoading[section];
@@ -546,7 +621,7 @@ function loadNormalSection(section){
     return sectionLoading[section];
 }
 
-/* HOME OVERLAY: NO CLOSE BUTTON, NO BACKGROUND, NO LOADING TEXT */
+/* HOME OVERLAY */
 function ensureHomeOverlay(){
     const overlay=$("kulzzyHomePageContent");
 
@@ -569,13 +644,22 @@ function renderHomeOverlay(){
     const box=$("kulzzyHomeOverlayBox");
     if(!box)return;
 
-    /* Keep the area empty until content arrives. */
     box.innerHTML="";
 
     if(homePageHTML){
         box.innerHTML=homePageHTML;
         executePublishedScripts(box);
         enablePublishedTouch(box);
+    }else if(homePageLoaded){
+        showPageStatus(
+            box,
+            "No published Home content was found. Check that the Home page is published in the admin panel.",
+            ()=>{
+                homePageLoaded=false;
+                homePageHTML="";
+                openHomePage();
+            }
+        );
     }
 }
 
@@ -588,7 +672,14 @@ function openHomePage(){
     overlay.classList.add("open");
     renderHomeOverlay();
 
-    if(homePageLoaded||homePageLoading||!db){
+    if(homePageLoaded||homePageLoading)return;
+
+    if(!db){
+        showPageStatus(
+            $("kulzzyHomeOverlayBox"),
+            "The Firebase connection did not start. Check your connection and reload this page.",
+            ()=>openHomePage()
+        );
         return;
     }
 
@@ -608,6 +699,16 @@ function openHomePage(){
         })
         .catch(error=>{
             console.error("Home loading error:",error);
+
+            showPageStatus(
+                $("kulzzyHomeOverlayBox"),
+                "Home could not load from Firebase. Check your internet connection or database permissions, then try again.",
+                ()=>{
+                    homePageLoaded=false;
+                    homePageHTML="";
+                    openHomePage();
+                }
+            );
         })
         .finally(()=>{
             homePageLoading=null;
@@ -654,14 +755,22 @@ function getMorePageIcon(title){
     return "📄";
 }
 
-/* LOAD MORE PAGES WITHOUT A LOADING MESSAGE */
+/* LOAD MORE PAGES WITH ERROR HANDLING */
 function loadMorePages(){
     const menu=$("kulzzyMorePagesMenu");
 
-    if(!menu||!db)return Promise.resolve();
+    if(!menu)return Promise.resolve();
+
+    if(!db){
+        showPageStatus(
+            menu,
+            "The Firebase connection did not start, so More pages cannot load. Check your connection and reload.",
+            ()=>loadMorePages()
+        );
+        return Promise.resolve();
+    }
 
     if(morePagesLoaded)return Promise.resolve();
-
     if(morePagesLoading)return morePagesLoading;
 
     morePagesLoading=get(ref(db,"kulzzyMorePages"))
@@ -715,6 +824,15 @@ function loadMorePages(){
         })
         .catch(error=>{
             console.error("More pages loading error:",error);
+
+            showPageStatus(
+                menu,
+                "More pages could not load from Firebase. Check your internet connection or database permissions, then try again.",
+                ()=>{
+                    morePagesLoaded=false;
+                    loadMorePages();
+                }
+            );
         })
         .finally(()=>{
             morePagesLoading=null;
@@ -794,18 +912,25 @@ function kulzzyVoterHtml(page){
     return "";
 }
 
-/* LOAD VOTING COMPETITIONS WITHOUT LOADING TEXT */
+/* LOAD VOTING COMPETITIONS */
 function loadKulzzyVoters(){
     const grid=$("kulzzyVotersGrid");
     const detail=$("kulzzyVotersDetail");
 
-    if(!grid||!db)return Promise.resolve();
+    if(!grid)return Promise.resolve();
+
+    if(!db){
+        showPageStatus(
+            grid,
+            "The Firebase connection did not start, so voting competitions cannot load. Check your connection and reload.",
+            ()=>loadKulzzyVoters()
+        );
+        return Promise.resolve();
+    }
 
     if(kulzzyVotersLoaded)return Promise.resolve();
-
     if(kulzzyVotersLoading)return kulzzyVotersLoading;
 
-    /* Clear the grid instead of displaying a loading message. */
     grid.innerHTML="";
 
     kulzzyVotersLoading=get(ref(db,"kulzzyVotersPages"))
@@ -881,8 +1006,14 @@ function loadKulzzyVoters(){
         .catch(error=>{
             console.error("Could not load Voters pages:",error);
 
-            grid.innerHTML=
-                '<div class="kulzzyVotersEmpty">Voting competitions could not be retrieved. Please check your connection and try again.</div>';
+            showPageStatus(
+                grid,
+                "Voting competitions could not be retrieved from Firebase. Check your internet connection or database permissions, then try again.",
+                ()=>{
+                    kulzzyVotersLoaded=false;
+                    loadKulzzyVoters();
+                }
+            );
         })
         .finally(()=>{
             kulzzyVotersLoading=null;
@@ -957,7 +1088,7 @@ function openKulzzyVoterPage(page){
     $("kulzzyContent").scrollTop=0;
 }
 
-/* NAVIGATION — ALL BUTTONS RESPOND TO CLICKS */
+/* NAVIGATION */
 function openSection(section,button){
     if(!normalSections.includes(section)&&section!=="more"){
         return;
@@ -971,12 +1102,10 @@ function openSection(section,button){
         item.classList.toggle("active",item===button);
     });
 
-    /* Close the Home overlay when another tab is selected. */
     if(section!=="home"&&homeOverlay){
         homeOverlay.classList.remove("open");
     }
 
-    /* Close an open More page when another tab is selected. */
     if(section!=="more"&&moreContent){
         moreContent.classList.remove("open");
         moreContent.innerHTML="";
@@ -1044,7 +1173,6 @@ window.kulzzyOpen=function(section,button){
 document.querySelectorAll(".kulzzyNavBtn").forEach(button=>{
     button.addEventListener("click",event=>{
         event.preventDefault();
-
         openSection(button.dataset.section,button);
     });
 });
@@ -1073,7 +1201,7 @@ const initialButton=
 
 openSection(savedSection,initialButton);
 
-/* PRELOAD PUBLISHED CONTENT IN PARALLEL */
+/* PRELOAD PUBLISHED CONTENT */
 window.setTimeout(()=>{
     if(!db)return;
 
