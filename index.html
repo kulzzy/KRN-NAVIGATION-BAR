@@ -1212,7 +1212,87 @@ window.setTimeout(()=>{
         loadNormalSection("market")
     ]);
 },100);
+/* PULL-DOWN-TO-REFRESH — ADDITION ONLY */
+(function(){
+    "use strict";
 
+    let startY = 0;
+    let startX = 0;
+    let tracking = false;
+    let refreshing = false;
+
+    const content = document.getElementById("kulzzyContent");
+    const home = document.getElementById("kulzzyHomePageContent");
+    const more = document.getElementById("kulzzyMorePageContent");
+
+    function getActiveScroller(){
+        if(more && more.classList.contains("open")) return more;
+        if(home && home.classList.contains("open")) return home;
+        return content;
+    }
+
+    function refreshPage(){
+        if(refreshing) return;
+
+        refreshing = true;
+
+        window.location.reload();
+    }
+
+    document.addEventListener("touchstart", function(event){
+        if(event.touches.length !== 1) {
+            tracking = false;
+            return;
+        }
+
+        const scroller = getActiveScroller();
+
+        if(!scroller || scroller.scrollTop > 0) {
+            tracking = false;
+            return;
+        }
+
+        startY = event.touches[0].clientY;
+        startX = event.touches[0].clientX;
+        tracking = true;
+    }, {passive:true});
+
+    document.addEventListener("touchmove", function(event){
+        if(!tracking || refreshing || event.touches.length !== 1) return;
+
+        const currentY = event.touches[0].clientY;
+        const currentX = event.touches[0].clientX;
+
+        const deltaY = currentY - startY;
+        const deltaX = currentX - startX;
+
+        if(Math.abs(deltaX) > Math.abs(deltaY)) {
+            tracking = false;
+            return;
+        }
+
+        const scroller = getActiveScroller();
+
+        if(!scroller || scroller.scrollTop > 0) {
+            tracking = false;
+            return;
+        }
+
+        if(deltaY > 110) {
+            tracking = false;
+            refreshPage();
+        }
+    }, {passive:true});
+
+    document.addEventListener("touchend", function(){
+        tracking = false;
+    }, {passive:true});
+
+    document.addEventListener("touchcancel", function(){
+        tracking = false;
+    }, {passive:true});
+
+})();
 </script>
 
 </body>
