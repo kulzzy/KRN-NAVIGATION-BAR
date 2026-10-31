@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kulzzy Radio Page Admin</title>
+
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#07152f;color:white}
@@ -54,6 +55,7 @@ body{padding:8px}
 }
 </style>
 </head>
+
 <body>
 <div class="kulzzyAdmin">
 
@@ -197,6 +199,7 @@ body{padding:8px}
 <p class="help">More pages are saved to:</p>
 <p class="help"><code>kulzzyMorePages</code></p>
 </div>
+
 </div>
 
 <script type="module">
@@ -265,7 +268,7 @@ clearTimeout(showStatus.timer);
 showStatus.timer=setTimeout(()=>{
 status.className="";
 status.textContent="";
-},5000);
+},10000);
 }
 
 document.querySelectorAll(".pageButton").forEach(button=>{
@@ -600,6 +603,7 @@ voterCurrentImageNote.textContent="Choose a picture from your device before savi
 }
 }
 
+/* IMPROVED CLOUDINARY UPLOAD WITH CLEARER ERRORS */
 async function uploadVoterPicture(file,id){
 const endpoint="https://api.cloudinary.com/v1_1/s4j0x7dk/image/upload";
 const form=new FormData();
@@ -608,21 +612,61 @@ form.append("file",file);
 form.append("upload_preset","NAVIGATION BAR");
 form.append("folder","kulzzy-voters-pages/"+id);
 
-const response=await fetch(endpoint,{
-method:"POST",
-body:form
-});
+return new Promise((resolve,reject)=>{
+const request=new XMLHttpRequest();
 
+request.open("POST",endpoint,true);
+request.timeout=90000;
+
+request.onload=function(){
 let result={};
-try{
-result=await response.json();
-}catch(_){}
 
-if(!response.ok||!result.secure_url){
-throw new Error(result.error&&result.error.message?result.error.message:"Cloudinary picture upload failed. Check the unsigned upload preset.");
+try{
+result=JSON.parse(request.responseText||"{}");
+}catch(error){}
+
+if(request.status>=200&&request.status<300&&result.secure_url){
+resolve(result.secure_url);
+return;
 }
 
-return result.secure_url;
+let message="Cloudinary returned HTTP "+request.status+".";
+
+if(result.error&&result.error.message){
+message=result.error.message;
+}
+
+reject(new Error(message));
+};
+
+request.onerror=function(){
+reject(new Error(
+"Your browser could not complete the connection to Cloudinary. "+
+"The upload request failed at network level. Try another internet connection. "+
+"If the problem continues, the Cloudinary request may be blocked or the endpoint may be unreachable."
+));
+};
+
+request.ontimeout=function(){
+reject(new Error(
+"Cloudinary upload timed out after 90 seconds. "+
+"The server did not finish the upload in time."
+));
+};
+
+request.onabort=function(){
+reject(new Error("The picture upload was cancelled."));
+};
+
+try{
+request.send(form);
+}catch(error){
+reject(new Error(
+"Could not start Cloudinary upload: "+
+(error.message||"Unknown browser error")
+));
+}
+});
 }
 
 async function saveVoterPage(){
@@ -702,8 +746,12 @@ clearVoterForm();
 await loadVoterPages();
 
 }catch(error){
-console.error(error);
-showStatus("Could not save voting page: "+(error&&error.message?error.message:error)+". Check your internet connection and Cloudinary upload preset.","error");
+console.error("Voting page publish error:",error);
+showStatus(
+"Could not save voting page: "+
+(error&&error.message?error.message:String(error)),
+"error"
+);
 }finally{
 button.disabled=false;
 button.textContent=currentVoterId?"UPDATE VOTING PAGE":oldButtonText;
