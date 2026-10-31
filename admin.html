@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07152f">
 <title>Kulzzy Radio Page Admin</title>
 
 <style>
@@ -45,6 +46,61 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .divider{height:1px;background:rgba(255,215,0,.18);margin:20px 0}
 .help{color:#bfc8d8;font-size:12px;line-height:1.6}
 code{color:#ffd700}
+
+#firebaseLogin{
+position:fixed;
+inset:0;
+z-index:999999;
+background:#07152f;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+overflow-y:auto;
+}
+.firebaseLoginCard{
+width:100%;
+max-width:390px;
+background:#0b1d3d;
+border:1px solid #ffd700;
+border-radius:16px;
+padding:24px;
+box-shadow:0 8px 30px rgba(0,0,0,.4);
+}
+.firebaseLoginCard h2{
+color:#ffd700;
+text-align:center;
+margin-top:0;
+}
+.firebaseLoginCard p{
+font-size:13px;
+line-height:1.6;
+color:#ddd;
+}
+.firebaseLoginCard input{
+width:100%;
+height:46px;
+padding:12px;
+margin:8px 0 17px;
+background:#061329;
+color:white;
+border:1px solid rgba(255,215,0,.5);
+border-radius:8px;
+}
+.firebaseLoginCard button{
+width:100%;
+padding:14px;
+background:#ffd700;
+color:#07152f;
+border:0;
+border-radius:8px;
+font-weight:bold;
+}
+#firebaseLoginMessage{
+color:#ffd0d2;
+overflow-wrap:anywhere;
+}
+
 @media(max-width:600px){
 body{padding:8px}
 .kulzzyHeader h1{font-size:20px}
@@ -52,11 +108,50 @@ body{padding:8px}
 .moreItem{align-items:flex-start;flex-direction:column}
 .moreItemButtons{width:100%}
 .moreItemButtons button{flex:1}
+.firebaseLoginCard{padding:20px}
 }
 </style>
 </head>
 
 <body>
+
+<!-- FIREBASE ADMIN SIGN-IN -->
+<div id="firebaseLogin">
+  <div class="firebaseLoginCard">
+    <h2>KULZZY RADIO ADMIN</h2>
+
+    <p style="text-align:center">
+      Sign in to manage pages and voting competitions.
+    </p>
+
+    <form id="firebaseLoginForm">
+      <label for="firebaseEmail">ADMIN EMAIL</label>
+      <input
+        id="firebaseEmail"
+        type="email"
+        value="dstnewz.ng@gmail.com"
+        autocomplete="username"
+        required
+      >
+
+      <label for="firebasePassword">FIREBASE PASSWORD</label>
+      <input
+        id="firebasePassword"
+        type="password"
+        placeholder="Enter your Firebase password"
+        autocomplete="current-password"
+        required
+      >
+
+      <button id="firebaseLoginButton" type="submit">
+        SIGN IN
+      </button>
+    </form>
+
+    <p id="firebaseLoginMessage" role="status"></p>
+  </div>
+</div>
+
 <div class="kulzzyAdmin">
 
 <div class="kulzzyHeader">
@@ -183,7 +278,7 @@ body{padding:8px}
 
 <div class="divider"></div>
 <h3 style="color:#ffd700">EXISTING VOTING PAGES</h3>
-<div id="voterList" class="moreList"><div class="help">Loading voting pages…</div></div>
+<div id="voterList" class="moreList"><div class="help">Sign in to load voting pages.</div></div>
 <p class="help">Firebase database path: <code>kulzzyVotersPages</code></p>
 </div>
 
@@ -204,7 +299,22 @@ body{padding:8px}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import {getDatabase,ref,get,set,remove,push} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+  remove,
+  push
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAgDCVkaem08exFEEL0-gPNKz_6Ziuchmw",
@@ -217,700 +327,995 @@ const firebaseConfig = {
   measurementId: "G-WNGX2S8863"
 };
 
+const ADMIN_EMAIL = "dstnewz.ng@gmail.com";
+
 let app;
 let db;
+let auth;
+let firebaseAuthenticated = false;
+let initialDataLoaded = false;
 
-try{
-app=initializeApp(firebaseConfig);
-db=getDatabase(app);
-}catch(error){
-console.error(error);
-showStatus("Firebase could not be initialized: "+error.message,"error");
+const loginScreen = document.getElementById("firebaseLogin");
+const loginForm = document.getElementById("firebaseLoginForm");
+const loginEmail = document.getElementById("firebaseEmail");
+const loginPassword = document.getElementById("firebasePassword");
+const loginButton = document.getElementById("firebaseLoginButton");
+const loginMessage = document.getElementById("firebaseLoginMessage");
+
+let currentPage = "home";
+let currentMoreId = null;
+let currentVoterId = null;
+
+const normalPageCache = new Map();
+
+const pageTitle = document.getElementById("pageTitle");
+const pageContent = document.getElementById("pageContent");
+const published = document.getElementById("published");
+
+const moreTitle = document.getElementById("moreTitle");
+const moreContent = document.getElementById("moreContent");
+const moreOrder = document.getElementById("moreOrder");
+const morePublished = document.getElementById("morePublished");
+const moreList = document.getElementById("moreList");
+
+const voterTitle = document.getElementById("voterTitle");
+const voterImageFile = document.getElementById("voterImageFile");
+const voterImagePreviewWrap = document.getElementById("voterImagePreviewWrap");
+const voterImagePreview = document.getElementById("voterImagePreview");
+const voterCurrentImageNote = document.getElementById("voterCurrentImageNote");
+const removeVoterImageButton = document.getElementById("removeVoterImage");
+const voterUrl = document.getElementById("voterUrl");
+const voterContent = document.getElementById("voterContent");
+const voterOrder = document.getElementById("voterOrder");
+const voterPublished = document.getElementById("voterPublished");
+const voterList = document.getElementById("voterList");
+
+let currentVoterImageUrl = "";
+let selectedVoterImageDataUrl = "";
+let removeCurrentVoterImage = false;
+
+/* STATUS MESSAGE */
+function showStatus(message, type = "info") {
+  const status = document.getElementById("status");
+
+  status.className = "show " + type;
+  status.textContent = message;
+
+  clearTimeout(showStatus.timer);
+
+  showStatus.timer = setTimeout(() => {
+    status.className = "";
+    status.textContent = "";
+  }, 10000);
 }
 
-let currentPage="home";
-let currentMoreId=null;
-let currentVoterId=null;
+/* INITIALIZE FIREBASE */
+try {
+  app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+  auth = getAuth(app);
+} catch (error) {
+  console.error("Firebase initialization error:", error);
 
-const normalPageCache=new Map();
-
-const pageTitle=document.getElementById("pageTitle");
-const pageContent=document.getElementById("pageContent");
-const published=document.getElementById("published");
-
-const moreTitle=document.getElementById("moreTitle");
-const moreContent=document.getElementById("moreContent");
-const moreOrder=document.getElementById("moreOrder");
-const morePublished=document.getElementById("morePublished");
-const moreList=document.getElementById("moreList");
-
-const voterTitle=document.getElementById("voterTitle");
-const voterImageFile=document.getElementById("voterImageFile");
-const voterImagePreviewWrap=document.getElementById("voterImagePreviewWrap");
-const voterImagePreview=document.getElementById("voterImagePreview");
-const voterCurrentImageNote=document.getElementById("voterCurrentImageNote");
-const removeVoterImageButton=document.getElementById("removeVoterImage");
-const voterUrl=document.getElementById("voterUrl");
-const voterContent=document.getElementById("voterContent");
-const voterOrder=document.getElementById("voterOrder");
-const voterPublished=document.getElementById("voterPublished");
-const voterList=document.getElementById("voterList");
-
-let currentVoterImageUrl="";
-let selectedVoterImageDataUrl="";
-let removeCurrentVoterImage=false;
-
-function showStatus(message,type="info"){
-const status=document.getElementById("status");
-status.className="show "+type;
-status.textContent=message;
-clearTimeout(showStatus.timer);
-showStatus.timer=setTimeout(()=>{
-status.className="";
-status.textContent="";
-},10000);
+  loginMessage.textContent =
+    "Firebase could not be initialized: " + error.message;
 }
 
-document.querySelectorAll(".pageButton").forEach(button=>{
-button.addEventListener("click",()=>{
-document.querySelectorAll(".pageButton").forEach(item=>item.classList.remove("active"));
-button.classList.add("active");
-currentPage=button.dataset.page;
-loadNormalPage(currentPage);
-});
-});
+/* REQUIRE THE CORRECT FIREBASE ACCOUNT */
+if (auth && db) {
+  onAuthStateChanged(auth, async (user) => {
+    if (
+      user &&
+      user.email &&
+      user.email.toLowerCase() === ADMIN_EMAIL
+    ) {
+      firebaseAuthenticated = true;
+      loginScreen.style.display = "none";
+      loginMessage.textContent = "";
 
-async function loadNormalPage(page){
-if(normalPageCache.has(page)){
-const cached=normalPageCache.get(page);
-pageTitle.value=cached.title;
-pageContent.value=cached.html;
-published.checked=cached.published;
-return;
+      if (!initialDataLoaded) {
+        initialDataLoaded = true;
+
+        await loadNormalPage("home");
+        await loadMorePages();
+        await loadVoterPages();
+      }
+
+    } else {
+      firebaseAuthenticated = false;
+      initialDataLoaded = false;
+
+      loginScreen.style.display = "flex";
+
+      if (user) {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("Could not sign out unauthorized user:", error);
+        }
+
+        loginMessage.textContent =
+          "This Firebase account is not authorized to manage these pages.";
+      }
+    }
+  });
 }
 
-if(!db)return;
+/* ADMIN SIGN-IN */
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-try{
-const snapshot=await get(ref(db,"kulzzyContent/"+page));
+  if (!auth) {
+    loginMessage.textContent =
+      "Firebase Authentication is unavailable. Check your Firebase configuration.";
+    return;
+  }
 
-if(!snapshot.exists()){
-const emptyPage={title:capitalize(page),html:"",published:true};
-normalPageCache.set(page,emptyPage);
-pageTitle.value=emptyPage.title;
-pageContent.value=emptyPage.html;
-published.checked=emptyPage.published;
-return;
-}
+  const email = loginEmail.value.trim().toLowerCase();
+  const password = loginPassword.value;
 
-const data=snapshot.val();
+  if (email !== ADMIN_EMAIL) {
+    loginMessage.textContent =
+      "Only " + ADMIN_EMAIL + " can access this admin page.";
+    return;
+  }
 
-pageTitle.value=data.title||data.name||capitalize(page);
-pageContent.value=getHTML(data);
-published.checked=data.published!==false;
+  if (!password) {
+    loginMessage.textContent = "Enter your Firebase password.";
+    return;
+  }
 
-normalPageCache.set(page,{
-title:pageTitle.value,
-html:pageContent.value,
-published:published.checked
-});
+  loginButton.disabled = true;
+  loginButton.textContent = "SIGNING IN...";
+  loginMessage.textContent = "";
 
-}catch(error){
-console.error(error);
-showStatus("Could not read "+page+": "+error.message,"error");
-}
-}
+  try {
+    const result = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-function getHTML(data){
-if(!data)return "";
-for(const key of ["html","content","writeUp","writeup","body","description","pageContent","htmlContent"]){
-if(typeof data[key]==="string")return data[key];
-}
-return "";
-}
+    if (
+      !result.user.email ||
+      result.user.email.toLowerCase() !== ADMIN_EMAIL
+    ) {
+      await signOut(auth);
 
-function capitalize(value){
-if(!value)return "";
-return value.charAt(0).toUpperCase()+value.slice(1);
-}
+      throw new Error(
+        "This account is not authorized to manage Kulzzy Radio pages."
+      );
+    }
 
-document.getElementById("savePage").addEventListener("click",saveNormalPage);
+    loginPassword.value = "";
+    loginMessage.textContent = "Sign-in successful.";
 
-async function saveNormalPage(){
-if(!db){showStatus("Firebase is not available.","error");return;}
+  } catch (error) {
+    console.error("Firebase sign-in error:", error);
 
-const title=pageTitle.value.trim();
-const html=pageContent.value;
+    const messages = {
+      "auth/invalid-credential":
+        "Incorrect email or password. Check your Firebase Authentication account.",
+      "auth/invalid-email":
+        "The email address is invalid.",
+      "auth/user-disabled":
+        "This Firebase account has been disabled.",
+      "auth/too-many-requests":
+        "Too many sign-in attempts. Please wait before trying again.",
+      "auth/network-request-failed":
+        "Network error. Check your internet connection and try again.",
+      "auth/operation-not-allowed":
+        "Email/Password sign-in is not enabled in Firebase Authentication."
+    };
 
-if(!title){showStatus("Enter a page title.","error");return;}
-if(!html.trim()){showStatus("Enter the page content.","error");return;}
+    loginMessage.textContent =
+      messages[error.code] ||
+      error.message ||
+      "Sign-in failed. Please try again.";
 
-const saveButton=document.getElementById("savePage");
-saveButton.disabled=true;
-
-try{
-const pageRef=ref(db,"kulzzyContent/"+currentPage);
-const existing=await get(pageRef);
-const oldData=existing.exists()?(existing.val()||{}):{};
-
-const pageData={
-title,
-name:title,
-html,
-content:html,
-writeUp:html,
-published:published.checked,
-order:oldData.order||0,
-updatedAt:Date.now()
-};
-
-await set(pageRef,pageData);
-
-normalPageCache.set(currentPage,{
-title,
-html,
-published:published.checked
-});
-
-showStatus(capitalize(currentPage)+" page published successfully.","success");
-
-}catch(error){
-console.error(error);
-showStatus("Could not publish "+currentPage+": "+error.message,"error");
-}finally{
-saveButton.disabled=false;
-}
-}
-
-document.getElementById("clearPage").addEventListener("click",()=>{
-pageTitle.value=capitalize(currentPage);
-pageContent.value="";
-published.checked=true;
-});
-
-document.getElementById("saveMore").addEventListener("click",saveMorePage);
-document.getElementById("clearMore").addEventListener("click",clearMoreForm);
-
-async function saveMorePage(){
-if(!db){showStatus("Firebase is not available.","error");return;}
-
-const title=moreTitle.value.trim();
-const html=moreContent.value;
-const order=Number(moreOrder.value)||0;
-
-if(!title){showStatus("Enter the More page title.","error");return;}
-if(!html.trim()){showStatus("Enter the More page content.","error");return;}
-
-const saveButton=document.getElementById("saveMore");
-saveButton.disabled=true;
-
-try{
-let pageRef;
-let id;
-
-if(currentMoreId){
-id=currentMoreId;
-pageRef=ref(db,"kulzzyMorePages/"+id);
-}else{
-pageRef=push(ref(db,"kulzzyMorePages"));
-id=pageRef.key;
-}
-
-const pageData={
-id,
-title,
-name:title,
-html,
-content:html,
-writeUp:html,
-published:morePublished.checked,
-order,
-updatedAt:Date.now()
-};
-
-await set(pageRef,pageData);
-showStatus("More page published successfully.","success");
-clearMoreForm();
-await loadMorePages();
-
-}catch(error){
-console.error(error);
-showStatus("Could not save More page: "+error.message,"error");
-}finally{
-saveButton.disabled=false;
-}
-}
-
-async function loadMorePages(){
-if(!db)return;
-
-try{
-const snapshot=await get(ref(db,"kulzzyMorePages"));
-moreList.innerHTML="";
-
-if(!snapshot.exists()){
-moreList.innerHTML="<div class='help'>No More pages published yet.</div>";
-return;
-}
-
-const data=snapshot.val();
-
-const pages=Object.keys(data).map(id=>{
-const page=data[id]||{};
-return {
-id,
-title:page.title||page.name||"Untitled",
-order:Number(page.order)||0,
-published:page.published!==false
-};
-}).sort((a,b)=>a.order-b.order);
-
-pages.forEach(page=>{
-const item=document.createElement("div");
-item.className="moreItem";
-
-const title=document.createElement("div");
-title.className="moreItemTitle";
-title.textContent=page.title+(page.published?"":" (Unpublished)");
-
-const buttons=document.createElement("div");
-buttons.className="moreItemButtons";
-
-const edit=document.createElement("button");
-edit.type="button";
-edit.className="secondary smallButton";
-edit.textContent="EDIT";
-edit.addEventListener("click",()=>editMorePage(page.id));
-
-const removeButton=document.createElement("button");
-removeButton.type="button";
-removeButton.className="danger smallButton";
-removeButton.textContent="DELETE";
-removeButton.addEventListener("click",()=>deleteMorePage(page.id,page.title));
-
-buttons.append(edit,removeButton);
-item.append(title,buttons);
-moreList.appendChild(item);
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "SIGN IN";
+  }
 });
 
-}catch(error){
-console.error(error);
-showStatus("Could not load More pages: "+error.message,"error");
+/* CHECK AUTHORIZATION BEFORE DATABASE OPERATIONS */
+function requireAdmin() {
+  if (!firebaseAuthenticated || !auth || !auth.currentUser) {
+    showStatus("Please sign in with the authorized Firebase admin account first.", "error");
+    loginScreen.style.display = "flex";
+    return false;
+  }
+
+  const email = auth.currentUser.email || "";
+
+  if (email.toLowerCase() !== ADMIN_EMAIL) {
+    showStatus("This account is not authorized.", "error");
+    return false;
+  }
+
+  return true;
 }
-}
 
-async function editMorePage(id){
-if(!db)return;
+/* NORMAL PAGE BUTTONS */
+document.querySelectorAll(".pageButton").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!requireAdmin()) return;
 
-try{
-const snapshot=await get(ref(db,"kulzzyMorePages/"+id));
+    document.querySelectorAll(".pageButton").forEach((item) => {
+      item.classList.remove("active");
+    });
 
-if(!snapshot.exists()){
-showStatus("That page no longer exists.","error");
-return;
-}
+    button.classList.add("active");
+    currentPage = button.dataset.page;
 
-const data=snapshot.val();
-
-currentMoreId=id;
-moreTitle.value=data.title||data.name||"";
-moreContent.value=getHTML(data);
-moreOrder.value=Number(data.order)||0;
-morePublished.checked=data.published!==false;
-
-document.getElementById("saveMore").textContent="UPDATE MORE PAGE";
-
-document.getElementById("moreTitle").scrollIntoView({
-behavior:"smooth",
-block:"center"
+    loadNormalPage(currentPage);
+  });
 });
 
-}catch(error){
-console.error(error);
-showStatus("Could not edit page: "+error.message,"error");
-}
-}
+/* LOAD NORMAL PAGE */
+async function loadNormalPage(page) {
+  if (!requireAdmin()) return;
 
-async function deleteMorePage(id,title){
-if(!db)return;
-if(!confirm("Delete this More page?\n\n"+title))return;
+  if (normalPageCache.has(page)) {
+    const cached = normalPageCache.get(page);
 
-try{
-await remove(ref(db,"kulzzyMorePages/"+id));
+    pageTitle.value = cached.title;
+    pageContent.value = cached.html;
+    published.checked = cached.published;
 
-if(currentMoreId===id)clearMoreForm();
+    return;
+  }
 
-showStatus("More page deleted successfully.","success");
-await loadMorePages();
+  if (!db) return;
 
-}catch(error){
-console.error(error);
-showStatus("Could not delete page: "+error.message,"error");
-}
-}
+  try {
+    const snapshot = await get(ref(db, "kulzzyContent/" + page));
 
-function clearMoreForm(){
-currentMoreId=null;
-moreTitle.value="";
-moreContent.value="";
-moreOrder.value="0";
-morePublished.checked=true;
-document.getElementById("saveMore").textContent="PUBLISH MORE PAGE";
-}
+    if (!snapshot.exists()) {
+      const emptyPage = {
+        title: capitalize(page),
+        html: "",
+        published: true
+      };
 
-document.getElementById("saveVoter").addEventListener("click",saveVoterPage);
-document.getElementById("clearVoter").addEventListener("click",clearVoterForm);
-voterImageFile.addEventListener("change",previewVoterImage);
-removeVoterImageButton.addEventListener("click",clearSelectedVoterImage);
+      normalPageCache.set(page, emptyPage);
 
-function previewVoterImage(){
-const file=voterImageFile.files&&voterImageFile.files[0];
-if(!file)return;
+      pageTitle.value = emptyPage.title;
+      pageContent.value = emptyPage.html;
+      published.checked = emptyPage.published;
 
-if(!file.type||!file.type.startsWith("image/")){
-showStatus("Please choose an image file from your device.","error");
-voterImageFile.value="";
-return;
-}
+      return;
+    }
 
-const reader=new FileReader();
+    const data = snapshot.val();
 
-reader.onload=()=>{
-selectedVoterImageDataUrl=String(reader.result||"");
-voterImagePreview.src=selectedVoterImageDataUrl;
-voterImagePreviewWrap.style.display="block";
-voterCurrentImageNote.textContent="Selected picture: "+file.name;
-removeCurrentVoterImage=false;
-};
+    pageTitle.value = data.title || data.name || capitalize(page);
+    pageContent.value = getHTML(data);
+    published.checked = data.published !== false;
 
-reader.onerror=()=>showStatus("Could not preview this picture. Please choose another image.","error");
-reader.readAsDataURL(file);
+    normalPageCache.set(page, {
+      title: pageTitle.value,
+      html: pageContent.value,
+      published: published.checked
+    });
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not read " + page + ": " + error.message, "error");
+  }
 }
 
-function clearSelectedVoterImage(){
-voterImageFile.value="";
-selectedVoterImageDataUrl="";
-removeCurrentVoterImage=false;
+function getHTML(data) {
+  if (!data) return "";
 
-if(currentVoterImageUrl){
-voterImagePreview.src=currentVoterImageUrl;
-voterImagePreviewWrap.style.display="block";
-voterCurrentImageNote.textContent="Your previously saved picture is still selected.";
-}else{
-voterImagePreview.removeAttribute("src");
-voterImagePreviewWrap.style.display="none";
-voterCurrentImageNote.textContent="Choose a picture from your device before saving.";
-}
-}
+  for (const key of [
+    "html",
+    "content",
+    "writeUp",
+    "writeup",
+    "body",
+    "description",
+    "pageContent",
+    "htmlContent"
+  ]) {
+    if (typeof data[key] === "string") return data[key];
+  }
 
-/* IMPROVED CLOUDINARY UPLOAD WITH CLEARER ERRORS */
-async function uploadVoterPicture(file,id){
-const endpoint="https://api.cloudinary.com/v1_1/s4j0x7dk/image/upload";
-const form=new FormData();
-
-form.append("file",file);
-form.append("upload_preset","NAVIGATION BAR");
-form.append("folder","kulzzy-voters-pages/"+id);
-
-return new Promise((resolve,reject)=>{
-const request=new XMLHttpRequest();
-
-request.open("POST",endpoint,true);
-request.timeout=90000;
-
-request.onload=function(){
-let result={};
-
-try{
-result=JSON.parse(request.responseText||"{}");
-}catch(error){}
-
-if(request.status>=200&&request.status<300&&result.secure_url){
-resolve(result.secure_url);
-return;
+  return "";
 }
 
-let message="Cloudinary returned HTTP "+request.status+".";
-
-if(result.error&&result.error.message){
-message=result.error.message;
+function capitalize(value) {
+  if (!value) return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-reject(new Error(message));
-};
+/* SAVE NORMAL PAGE */
+document.getElementById("savePage").addEventListener("click", saveNormalPage);
 
-request.onerror=function(){
-reject(new Error(
-"Your browser could not complete the connection to Cloudinary. "+
-"The upload request failed at network level. Try another internet connection. "+
-"If the problem continues, the Cloudinary request may be blocked or the endpoint may be unreachable."
-));
-};
+async function saveNormalPage() {
+  if (!requireAdmin()) return;
 
-request.ontimeout=function(){
-reject(new Error(
-"Cloudinary upload timed out after 90 seconds. "+
-"The server did not finish the upload in time."
-));
-};
+  const title = pageTitle.value.trim();
+  const html = pageContent.value;
 
-request.onabort=function(){
-reject(new Error("The picture upload was cancelled."));
-};
+  if (!title) {
+    showStatus("Enter a page title.", "error");
+    return;
+  }
 
-try{
-request.send(form);
-}catch(error){
-reject(new Error(
-"Could not start Cloudinary upload: "+
-(error.message||"Unknown browser error")
-));
-}
-});
-}
+  if (!html.trim()) {
+    showStatus("Enter the page content.", "error");
+    return;
+  }
 
-async function saveVoterPage(){
-if(!db){showStatus("Firebase is not available.","error");return;}
+  const saveButton = document.getElementById("savePage");
+  saveButton.disabled = true;
 
-const title=voterTitle.value.trim();
-const url=voterUrl.value.trim();
-const html=voterContent.value;
-const order=Number(voterOrder.value)||0;
-const file=voterImageFile.files&&voterImageFile.files[0];
+  try {
+    const pageRef = ref(db, "kulzzyContent/" + currentPage);
+    const existing = await get(pageRef);
+    const oldData = existing.exists() ? (existing.val() || {}) : {};
 
-if(!title){showStatus("Enter the competition title.","error");return;}
+    const pageData = {
+      title,
+      name: title,
+      html,
+      content: html,
+      writeUp: html,
+      published: published.checked,
+      order: oldData.order || 0,
+      updatedAt: Date.now()
+    };
 
-if(!file&&!currentVoterImageUrl&&!selectedVoterImageDataUrl){
-showStatus("Choose a competition picture from your device before saving.","error");
-return;
-}
+    await set(pageRef, pageData);
 
-if(!url&&!html.trim()){
-showStatus("Enter a voting page URL or paste the page HTML/content.","error");
-return;
-}
+    normalPageCache.set(currentPage, {
+      title,
+      html,
+      published: published.checked
+    });
 
-const button=document.getElementById("saveVoter");
-button.disabled=true;
-const oldButtonText=button.textContent;
+    showStatus(capitalize(currentPage) + " page published successfully.", "success");
 
-try{
-let pageRef,id;
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not publish " + currentPage + ": " + error.message, "error");
 
-if(currentVoterId){
-id=currentVoterId;
-pageRef=ref(db,"kulzzyVotersPages/"+id);
-}else{
-pageRef=push(ref(db,"kulzzyVotersPages"));
-id=pageRef.key;
+  } finally {
+    saveButton.disabled = false;
+  }
 }
 
-const oldSnap=currentVoterId?await get(pageRef):null;
-const oldData=oldSnap&&oldSnap.exists()?oldSnap.val():{};
+document.getElementById("clearPage").addEventListener("click", () => {
+  if (!requireAdmin()) return;
 
-let image=currentVoterImageUrl||oldData.image||oldData.imageUrl||"";
-
-if(file){
-button.textContent="UPLOADING PICTURE…";
-showStatus("Uploading your competition picture. Please keep this page open…","info");
-image=await uploadVoterPicture(file,id);
-}else if(removeCurrentVoterImage&&!selectedVoterImageDataUrl){
-image="";
-}
-
-if(!image){
-showStatus("The picture was not uploaded. Please select it again.","error");
-return;
-}
-
-button.textContent="SAVING PAGE…";
-
-await set(pageRef,{
-id,
-title,
-name:title,
-image,
-imageUrl:image,
-url,
-pageUrl:url,
-html,
-content:html,
-order,
-published:voterPublished.checked,
-createdAt:oldData.createdAt||Date.now(),
-updatedAt:Date.now()
+  pageTitle.value = capitalize(currentPage);
+  pageContent.value = "";
+  published.checked = true;
 });
 
-showStatus("Voting page saved successfully with its picture.","success");
-clearVoterForm();
-await loadVoterPages();
+/* MORE PAGES */
+document.getElementById("saveMore").addEventListener("click", saveMorePage);
+document.getElementById("clearMore").addEventListener("click", clearMoreForm);
 
-}catch(error){
-console.error("Voting page publish error:",error);
-showStatus(
-"Could not save voting page: "+
-(error&&error.message?error.message:String(error)),
-"error"
-);
-}finally{
-button.disabled=false;
-button.textContent=currentVoterId?"UPDATE VOTING PAGE":oldButtonText;
+async function saveMorePage() {
+  if (!requireAdmin()) return;
+
+  const title = moreTitle.value.trim();
+  const html = moreContent.value;
+  const order = Number(moreOrder.value) || 0;
+
+  if (!title) {
+    showStatus("Enter the More page title.", "error");
+    return;
+  }
+
+  if (!html.trim()) {
+    showStatus("Enter the More page content.", "error");
+    return;
+  }
+
+  const saveButton = document.getElementById("saveMore");
+  saveButton.disabled = true;
+
+  try {
+    let pageRef;
+    let id;
+
+    if (currentMoreId) {
+      id = currentMoreId;
+      pageRef = ref(db, "kulzzyMorePages/" + id);
+    } else {
+      pageRef = push(ref(db, "kulzzyMorePages"));
+      id = pageRef.key;
+    }
+
+    const pageData = {
+      id,
+      title,
+      name: title,
+      html,
+      content: html,
+      writeUp: html,
+      published: morePublished.checked,
+      order,
+      updatedAt: Date.now()
+    };
+
+    await set(pageRef, pageData);
+
+    showStatus("More page published successfully.", "success");
+
+    clearMoreForm();
+    await loadMorePages();
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not save More page: " + error.message, "error");
+
+  } finally {
+    saveButton.disabled = false;
+  }
 }
+
+/* LOAD MORE PAGES */
+async function loadMorePages() {
+  if (!requireAdmin() || !db) return;
+
+  try {
+    const snapshot = await get(ref(db, "kulzzyMorePages"));
+
+    moreList.innerHTML = "";
+
+    if (!snapshot.exists()) {
+      moreList.innerHTML = "<div class='help'>No More pages published yet.</div>";
+      return;
+    }
+
+    const data = snapshot.val();
+
+    const pages = Object.keys(data).map((id) => {
+      const page = data[id] || {};
+
+      return {
+        id,
+        title: page.title || page.name || "Untitled",
+        order: Number(page.order) || 0,
+        published: page.published !== false
+      };
+    }).sort((a, b) => a.order - b.order);
+
+    pages.forEach((page) => {
+      const item = document.createElement("div");
+      item.className = "moreItem";
+
+      const title = document.createElement("div");
+      title.className = "moreItemTitle";
+      title.textContent = page.title + (page.published ? "" : " (Unpublished)");
+
+      const buttons = document.createElement("div");
+      buttons.className = "moreItemButtons";
+
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary smallButton";
+      edit.textContent = "EDIT";
+      edit.addEventListener("click", () => editMorePage(page.id));
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "danger smallButton";
+      removeButton.textContent = "DELETE";
+      removeButton.addEventListener("click", () => deleteMorePage(page.id, page.title));
+
+      buttons.append(edit, removeButton);
+      item.append(title, buttons);
+      moreList.appendChild(item);
+    });
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not load More pages: " + error.message, "error");
+  }
 }
 
-async function loadVoterPages(){
-if(!db||!voterList)return;
+/* EDIT MORE PAGE */
+async function editMorePage(id) {
+  if (!requireAdmin()) return;
 
-try{
-const snap=await get(ref(db,"kulzzyVotersPages"));
-voterList.innerHTML="";
+  try {
+    const snapshot = await get(ref(db, "kulzzyMorePages/" + id));
 
-if(!snap.exists()){
-voterList.innerHTML='<div class="help">No voting pages have been added yet.</div>';
-return;
+    if (!snapshot.exists()) {
+      showStatus("That page no longer exists.", "error");
+      return;
+    }
+
+    const data = snapshot.val();
+
+    currentMoreId = id;
+    moreTitle.value = data.title || data.name || "";
+    moreContent.value = getHTML(data);
+    moreOrder.value = Number(data.order) || 0;
+    morePublished.checked = data.published !== false;
+
+    document.getElementById("saveMore").textContent = "UPDATE MORE PAGE";
+
+    document.getElementById("moreTitle").scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not edit page: " + error.message, "error");
+  }
 }
 
-const data=snap.val();
+/* DELETE MORE PAGE */
+async function deleteMorePage(id, title) {
+  if (!requireAdmin()) return;
 
-const pages=Object.keys(data).map(id=>({
-id,
-...(data[id]||{})
-})).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+  if (!confirm("Delete this More page?\n\n" + title)) return;
 
-pages.forEach(page=>{
-const row=document.createElement("div");
-row.className="moreItem";
+  try {
+    await remove(ref(db, "kulzzyMorePages/" + id));
 
-const infoWrap=document.createElement("div");
-infoWrap.style.display="flex";
-infoWrap.style.alignItems="center";
-infoWrap.style.gap="10px";
-infoWrap.style.minWidth="0";
+    if (currentMoreId === id) clearMoreForm();
 
-const thumb=document.createElement("img");
-thumb.alt="";
-thumb.src=page.image||page.imageUrl||"";
-thumb.style.cssText="width:58px;height:58px;object-fit:cover;border-radius:8px;background:#fff;flex-shrink:0";
+    showStatus("More page deleted successfully.", "success");
+    await loadMorePages();
 
-if(!thumb.src)thumb.style.display="none";
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not delete page: " + error.message, "error");
+  }
+}
 
-const info=document.createElement("div");
-info.className="moreItemTitle";
-info.textContent=(page.title||page.name||"Untitled")+" — "+(page.published===false?"UNPUBLISHED":"PUBLISHED");
+function clearMoreForm() {
+  currentMoreId = null;
+  moreTitle.value = "";
+  moreContent.value = "";
+  moreOrder.value = "0";
+  morePublished.checked = true;
 
-infoWrap.append(thumb,info);
+  document.getElementById("saveMore").textContent = "PUBLISH MORE PAGE";
+}
 
-const actions=document.createElement("div");
-actions.className="moreItemButtons";
+/* VOTING PAGE EVENTS */
+document.getElementById("saveVoter").addEventListener("click", saveVoterPage);
+document.getElementById("clearVoter").addEventListener("click", clearVoterForm);
 
-const edit=document.createElement("button");
-edit.type="button";
-edit.className="secondary smallButton";
-edit.textContent="EDIT";
-edit.addEventListener("click",()=>editVoterPage(page.id));
+voterImageFile.addEventListener("change", previewVoterImage);
+removeVoterImageButton.addEventListener("click", clearSelectedVoterImage);
 
-const del=document.createElement("button");
-del.type="button";
-del.className="danger smallButton";
-del.textContent="DELETE";
-del.addEventListener("click",()=>deleteVoterPage(page.id,page.title||page.name||"Untitled"));
+/* PREVIEW SELECTED PICTURE */
+function previewVoterImage() {
+  if (!requireAdmin()) return;
 
-actions.append(edit,del);
-row.append(infoWrap,actions);
-voterList.appendChild(row);
+  const file = voterImageFile.files && voterImageFile.files[0];
+
+  if (!file) return;
+
+  if (!file.type || !file.type.startsWith("image/")) {
+    showStatus("Please choose an image file from your device.", "error");
+    voterImageFile.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    selectedVoterImageDataUrl = String(reader.result || "");
+    voterImagePreview.src = selectedVoterImageDataUrl;
+    voterImagePreviewWrap.style.display = "block";
+    voterCurrentImageNote.textContent = "Selected picture: " + file.name;
+    removeCurrentVoterImage = false;
+  };
+
+  reader.onerror = () => {
+    showStatus("Could not preview this picture. Please choose another image.", "error");
+  };
+
+  reader.readAsDataURL(file);
+}
+
+/* CLEAR PICTURE SELECTION */
+function clearSelectedVoterImage() {
+  if (!requireAdmin()) return;
+
+  voterImageFile.value = "";
+  selectedVoterImageDataUrl = "";
+  removeCurrentVoterImage = false;
+
+  if (currentVoterImageUrl) {
+    voterImagePreview.src = currentVoterImageUrl;
+    voterImagePreviewWrap.style.display = "block";
+    voterCurrentImageNote.textContent = "Your previously saved picture is still selected.";
+  } else {
+    voterImagePreview.removeAttribute("src");
+    voterImagePreviewWrap.style.display = "none";
+    voterCurrentImageNote.textContent = "Choose a picture from your device before saving.";
+  }
+}
+
+/* CLOUDINARY IMAGE UPLOAD */
+async function uploadVoterPicture(file, id) {
+  const endpoint = "https://api.cloudinary.com/v1_1/s4j0x7dk/image/upload";
+  const form = new FormData();
+
+  form.append("file", file);
+  form.append("upload_preset", "NAVIGATION BAR");
+  form.append("folder", "kulzzy-voters-pages/" + id);
+
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+
+    request.open("POST", endpoint, true);
+    request.timeout = 90000;
+
+    request.onload = function() {
+      let result = {};
+
+      try {
+        result = JSON.parse(request.responseText || "{}");
+      } catch (error) {
+        // The response was not valid JSON.
+      }
+
+      if (
+        request.status >= 200 &&
+        request.status < 300 &&
+        result.secure_url
+      ) {
+        resolve(result.secure_url);
+        return;
+      }
+
+      let message = "Cloudinary returned HTTP " + request.status + ".";
+
+      if (result.error && result.error.message) {
+        message = result.error.message;
+      }
+
+      reject(new Error(message));
+    };
+
+    request.onerror = function() {
+      reject(new Error(
+        "The browser could not connect to Cloudinary. Check your internet connection and try again."
+      ));
+    };
+
+    request.ontimeout = function() {
+      reject(new Error(
+        "Cloudinary upload timed out after 90 seconds. Try again when your connection is stable."
+      ));
+    };
+
+    request.onabort = function() {
+      reject(new Error("The picture upload was cancelled."));
+    };
+
+    try {
+      request.send(form);
+    } catch (error) {
+      reject(new Error(
+        "Could not start Cloudinary upload: " +
+        (error.message || "Unknown browser error")
+      ));
+    }
+  });
+}
+
+/* SAVE VOTING PAGE */
+async function saveVoterPage() {
+  if (!requireAdmin()) return;
+
+  const title = voterTitle.value.trim();
+  const url = voterUrl.value.trim();
+  const html = voterContent.value;
+  const order = Number(voterOrder.value) || 0;
+  const file = voterImageFile.files && voterImageFile.files[0];
+
+  if (!title) {
+    showStatus("Enter the competition title.", "error");
+    return;
+  }
+
+  if (!file && !currentVoterImageUrl && !selectedVoterImageDataUrl) {
+    showStatus("Choose a competition picture from your device before saving.", "error");
+    return;
+  }
+
+  if (!url && !html.trim()) {
+    showStatus("Enter a voting page URL or paste the page HTML/content.", "error");
+    return;
+  }
+
+  const button = document.getElementById("saveVoter");
+  const oldButtonText = button.textContent;
+
+  button.disabled = true;
+
+  try {
+    let pageRef;
+    let id;
+
+    if (currentVoterId) {
+      id = currentVoterId;
+      pageRef = ref(db, "kulzzyVotersPages/" + id);
+    } else {
+      pageRef = push(ref(db, "kulzzyVotersPages"));
+      id = pageRef.key;
+    }
+
+    const oldSnap = currentVoterId ? await get(pageRef) : null;
+    const oldData = oldSnap && oldSnap.exists() ? oldSnap.val() : {};
+
+    let image = currentVoterImageUrl || oldData.image || oldData.imageUrl || "";
+
+    if (file) {
+      button.textContent = "UPLOADING PICTURE…";
+
+      showStatus(
+        "Uploading your competition picture. Please keep this page open…",
+        "info"
+      );
+
+      image = await uploadVoterPicture(file, id);
+
+    } else if (removeCurrentVoterImage && !selectedVoterImageDataUrl) {
+      image = "";
+    }
+
+    if (!image) {
+      showStatus("The picture was not uploaded. Please select it again.", "error");
+      return;
+    }
+
+    button.textContent = "SAVING PAGE…";
+
+    await set(pageRef, {
+      id,
+      title,
+      name: title,
+      image,
+      imageUrl: image,
+      url,
+      pageUrl: url,
+      html,
+      content: html,
+      order,
+      published: voterPublished.checked,
+      createdAt: oldData.createdAt || Date.now(),
+      updatedAt: Date.now()
+    });
+
+    showStatus("Voting page saved successfully with its picture.", "success");
+
+    clearVoterForm();
+    await loadVoterPages();
+
+  } catch (error) {
+    console.error("Voting page publish error:", error);
+
+    showStatus(
+      "Could not save voting page: " +
+      (error && error.message ? error.message : String(error)),
+      "error"
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = currentVoterId
+      ? "UPDATE VOTING PAGE"
+      : oldButtonText;
+  }
+}
+
+/* LOAD VOTING PAGES */
+async function loadVoterPages() {
+  if (!requireAdmin() || !db || !voterList) return;
+
+  try {
+    const snap = await get(ref(db, "kulzzyVotersPages"));
+
+    voterList.innerHTML = "";
+
+    if (!snap.exists()) {
+      voterList.innerHTML =
+        '<div class="help">No voting pages have been added yet.</div>';
+      return;
+    }
+
+    const data = snap.val();
+
+    const pages = Object.keys(data).map((id) => ({
+      id,
+      ...(data[id] || {})
+    })).sort((a, b) =>
+      (Number(a.order) || 0) - (Number(b.order) || 0)
+    );
+
+    pages.forEach((page) => {
+      const row = document.createElement("div");
+      row.className = "moreItem";
+
+      const infoWrap = document.createElement("div");
+      infoWrap.style.display = "flex";
+      infoWrap.style.alignItems = "center";
+      infoWrap.style.gap = "10px";
+      infoWrap.style.minWidth = "0";
+
+      const thumb = document.createElement("img");
+      thumb.alt = "";
+      thumb.src = page.image || page.imageUrl || "";
+      thumb.style.cssText =
+        "width:58px;height:58px;object-fit:cover;border-radius:8px;background:#fff;flex-shrink:0";
+
+      if (!page.image && !page.imageUrl) {
+        thumb.style.display = "none";
+      }
+
+      const info = document.createElement("div");
+      info.className = "moreItemTitle";
+
+      info.textContent =
+        (page.title || page.name || "Untitled") +
+        " — " +
+        (page.published === false ? "UNPUBLISHED" : "PUBLISHED");
+
+      infoWrap.append(thumb, info);
+
+      const actions = document.createElement("div");
+      actions.className = "moreItemButtons";
+
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary smallButton";
+      edit.textContent = "EDIT";
+      edit.addEventListener("click", () => editVoterPage(page.id));
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "danger smallButton";
+      del.textContent = "DELETE";
+
+      del.addEventListener("click", () =>
+        deleteVoterPage(
+          page.id,
+          page.title || page.name || "Untitled"
+        )
+      );
+
+      actions.append(edit, del);
+      row.append(infoWrap, actions);
+      voterList.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    voterList.innerHTML =
+      '<div class="help">Could not load voting pages: ' +
+      escapeVoterText(error.message) +
+      "</div>";
+  }
+}
+
+function escapeVoterText(value) {
+  const el = document.createElement("span");
+  el.textContent = String(value || "");
+  return el.innerHTML;
+}
+
+/* EDIT VOTING PAGE */
+async function editVoterPage(id) {
+  if (!requireAdmin()) return;
+
+  try {
+    const snap = await get(ref(db, "kulzzyVotersPages/" + id));
+
+    if (!snap.exists()) {
+      showStatus("Voting page no longer exists.", "error");
+      return;
+    }
+
+    const d = snap.val();
+
+    currentVoterId = id;
+    voterTitle.value = d.title || d.name || "";
+
+    currentVoterImageUrl = d.image || d.imageUrl || "";
+    selectedVoterImageDataUrl = "";
+    removeCurrentVoterImage = false;
+    voterImageFile.value = "";
+
+    if (currentVoterImageUrl) {
+      voterImagePreview.src = currentVoterImageUrl;
+      voterImagePreviewWrap.style.display = "block";
+
+      voterCurrentImageNote.textContent =
+        "Current picture is saved. Choose another picture only if you want to replace it.";
+
+    } else {
+      voterImagePreview.removeAttribute("src");
+      voterImagePreviewWrap.style.display = "none";
+
+      voterCurrentImageNote.textContent =
+        "No picture saved. Choose one from your device.";
+    }
+
+    voterUrl.value = d.url || d.pageUrl || "";
+    voterContent.value = d.html || d.content || d.writeUp || "";
+    voterOrder.value = Number(d.order) || 0;
+    voterPublished.checked = d.published !== false;
+
+    document.getElementById("saveVoter").textContent = "UPDATE VOTING PAGE";
+
+    document.getElementById("votersAdminCard").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not edit voting page: " + error.message, "error");
+  }
+}
+
+/* DELETE VOTING PAGE */
+async function deleteVoterPage(id, title) {
+  if (!requireAdmin()) return;
+
+  if (!confirm("Delete this voting page?\n\n" + title)) return;
+
+  try {
+    await remove(ref(db, "kulzzyVotersPages/" + id));
+
+    if (currentVoterId === id) {
+      clearVoterForm();
+    }
+
+    showStatus("Voting page deleted.", "success");
+    await loadVoterPages();
+
+  } catch (error) {
+    console.error(error);
+    showStatus("Could not delete voting page: " + error.message, "error");
+  }
+}
+
+/* RESET VOTING PAGE FORM */
+function clearVoterForm() {
+  currentVoterId = null;
+  currentVoterImageUrl = "";
+  selectedVoterImageDataUrl = "";
+  removeCurrentVoterImage = false;
+
+  voterTitle.value = "";
+  voterImageFile.value = "";
+
+  voterImagePreview.removeAttribute("src");
+  voterImagePreviewWrap.style.display = "none";
+  voterCurrentImageNote.textContent = "";
+
+  voterUrl.value = "";
+  voterContent.value = "";
+  voterOrder.value = "0";
+  voterPublished.checked = true;
+
+  document.getElementById("saveVoter").textContent = "PUBLISH VOTING PAGE";
+}
+
+/* SIGN OUT ON REQUEST THROUGH THE ADMIN SESSION */
+window.addEventListener("beforeunload", () => {
+  // Firebase manages its own authentication session.
+  // Closing the page does not sign the user out.
 });
-
-}catch(error){
-console.error(error);
-voterList.innerHTML='<div class="help">Could not load voting pages: '+escapeVoterText(error.message)+'</div>';
-}
-}
-
-function escapeVoterText(value){
-const el=document.createElement("span");
-el.textContent=String(value||"");
-return el.innerHTML;
-}
-
-async function editVoterPage(id){
-try{
-const snap=await get(ref(db,"kulzzyVotersPages/"+id));
-
-if(!snap.exists()){
-showStatus("Voting page no longer exists.","error");
-return;
-}
-
-const d=snap.val();
-
-currentVoterId=id;
-voterTitle.value=d.title||d.name||"";
-currentVoterImageUrl=d.image||d.imageUrl||"";
-selectedVoterImageDataUrl="";
-removeCurrentVoterImage=false;
-voterImageFile.value="";
-
-if(currentVoterImageUrl){
-voterImagePreview.src=currentVoterImageUrl;
-voterImagePreviewWrap.style.display="block";
-voterCurrentImageNote.textContent="Current picture is saved. Choose another picture only if you want to replace it.";
-}else{
-voterImagePreview.removeAttribute("src");
-voterImagePreviewWrap.style.display="none";
-voterCurrentImageNote.textContent="No picture saved. Choose one from your device.";
-}
-
-voterUrl.value=d.url||d.pageUrl||"";
-voterContent.value=d.html||d.content||d.writeUp||"";
-voterOrder.value=Number(d.order)||0;
-voterPublished.checked=d.published!==false;
-
-document.getElementById("saveVoter").textContent="UPDATE VOTING PAGE";
-document.getElementById("votersAdminCard").scrollIntoView({behavior:"smooth",block:"start"});
-
-}catch(error){
-showStatus("Could not edit voting page: "+error.message,"error");
-}
-}
-
-async function deleteVoterPage(id,title){
-if(!confirm("Delete this voting page?\n\n"+title))return;
-
-try{
-await remove(ref(db,"kulzzyVotersPages/"+id));
-
-if(currentVoterId===id)clearVoterForm();
-
-showStatus("Voting page deleted.","success");
-await loadVoterPages();
-
-}catch(error){
-showStatus("Could not delete voting page: "+error.message,"error");
-}
-}
-
-function clearVoterForm(){
-currentVoterId=null;
-currentVoterImageUrl="";
-selectedVoterImageDataUrl="";
-removeCurrentVoterImage=false;
-
-voterTitle.value="";
-voterImageFile.value="";
-voterImagePreview.removeAttribute("src");
-voterImagePreviewWrap.style.display="none";
-voterCurrentImageNote.textContent="";
-voterUrl.value="";
-voterContent.value="";
-voterOrder.value="0";
-voterPublished.checked=true;
-
-document.getElementById("saveVoter").textContent="PUBLISH VOTING PAGE";
-}
-
-loadNormalPage("home");
-loadMorePages();
-loadVoterPages();
 </script>
+
 </body>
 </html>
