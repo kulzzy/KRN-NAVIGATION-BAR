@@ -544,7 +544,7 @@ function displayNormalContent(section,html){
     sectionCache[section]=container.innerHTML;
 }
 
-/* LOAD PUBLISHED SECTIONS WITH VISIBLE ERRORS AND RETRIES */
+/* LOAD PUBLISHED SECTIONS */
 function loadNormalSection(section){
     if(!normalSections.includes(section)){
         return Promise.resolve();
@@ -666,14 +666,16 @@ function renderHomeOverlay(){
 
 function openHomePage(){
     const overlay=$("kulzzyHomePageContent");
-    if(!overlay)return;
+    if(!overlay)return Promise.resolve();
 
     ensureHomeOverlay();
 
     overlay.classList.add("open");
     renderHomeOverlay();
 
-    if(homePageLoaded||homePageLoading)return;
+    if(homePageLoaded||homePageLoading){
+        return homePageLoading||Promise.resolve();
+    }
 
     if(!db){
         showPageStatus(
@@ -681,7 +683,7 @@ function openHomePage(){
             "The Firebase connection did not start. Check your connection and reload this page.",
             ()=>openHomePage()
         );
-        return;
+        return Promise.resolve();
     }
 
     homePageLoading=get(ref(db,"kulzzyContent/home"))
@@ -714,6 +716,8 @@ function openHomePage(){
         .finally(()=>{
             homePageLoading=null;
         });
+
+    return homePageLoading;
 }
 
 function closeHomePage(){
@@ -756,7 +760,7 @@ function getMorePageIcon(title){
     return "📄";
 }
 
-/* LOAD MORE PAGES WITH ERROR HANDLING */
+/* LOAD MORE PAGES */
 function loadMorePages(){
     const menu=$("kulzzyMorePagesMenu");
 
@@ -1202,97 +1206,206 @@ const initialButton=
 
 openSection(savedSection,initialButton);
 
-/* PRELOAD PUBLISHED CONTENT */
+/* FAST BACKGROUND PRELOADING */
 window.setTimeout(()=>{
     if(!db)return;
 
     Promise.allSettled([
         loadNormalSection("request"),
         loadNormalSection("wishes"),
-        loadNormalSection("market")
+        loadNormalSection("market"),
+        loadMorePages(),
+        loadKulzzyVoters()
     ]);
-},100);
-/* PULL-DOWN-TO-REFRESH — ADDITION ONLY */
+},50);
+
+/* FAST ONE-TIME PULL-DOWN REFRESH */
 (function(){
     "use strict";
 
-    let startY = 0;
-    let startX = 0;
-    let tracking = false;
-    let refreshing = false;
+    let startY=0;
+    let startX=0;
+    let tracking=false;
+    let refreshing=false;
 
-    const content = document.getElementById("kulzzyContent");
-    const home = document.getElementById("kulzzyHomePageContent");
-    const more = document.getElementById("kulzzyMorePageContent");
+    const content=$("kulzzyContent");
+    const home=$("kulzzyHomePageContent");
+    const more=$("kulzzyMorePageContent");
+
+    const REFRESH_DISTANCE=70;
 
     function getActiveScroller(){
-        if(more && more.classList.contains("open")) return more;
-        if(home && home.classList.contains("open")) return home;
+        if(more&&more.classList.contains("open"))return more;
+        if(home&&home.classList.contains("open"))return home;
         return content;
     }
 
-    function refreshPage(){
-        if(refreshing) return;
+    /* REFRESH ONLY THE CURRENTLY OPEN PAGE */
+    async function refreshCurrentPage(){
 
-        refreshing = true;
+        if(refreshing)return;
 
-        window.location.reload();
+        refreshing=true;
+
+        try{
+
+            /* MORE PAGE */
+            if(more&&more.classList.contains("open")){
+
+                closeMorePage();
+
+                if(morePagesLoading){
+                    await morePagesLoading;
+                }
+
+                morePagesLoaded=false;
+                morePagesData=[];
+
+                await loadMorePages();
+
+                return;
+            }
+
+            /* HOME PAGE */
+            if(home&&home.classList.contains("open")){
+
+                if(homePageLoading){
+                    await homePageLoading;
+                }
+
+                homePageLoaded=false;
+                homePageHTML="";
+                homePageLoading=null;
+
+                await openHomePage();
+
+                return;
+            }
+
+            /* DETERMINE ACTIVE SECTION */
+            const active=document.querySelector(
+                ".kulzzySection.active"
+            );
+
+            if(!active)return;
+
+            const section=active.id.replace("kulzzy-","");
+
+            /* VOTERS */
+            if(section==="voters"){
+
+                if(kulzzyVotersLoading){
+                    await kulzzyVotersLoading;
+                }
+
+                kulzzyVotersLoaded=false;
+                kulzzyVoterPages=[];
+
+                $("kulzzyVotersGrid").innerHTML="";
+
+                await loadKulzzyVoters();
+
+                return;
+            }
+
+            /* NORMAL PUBLISHED PAGES */
+            if(normalSections.includes(section)){
+
+                if(sectionLoading[section]){
+                    await sectionLoading[section];
+                }
+
+                delete sectionCache[section];
+
+                const container=$(
+                    "kulzzyPublished-"+section
+                );
+
+                if(container){
+                    container.innerHTML="";
+                }
+
+                await loadNormalSection(section);
+            }
+
+        }catch(error){
+
+            console.error("Fast refresh error:",error);
+
+        }finally{
+
+            refreshing=false;
+        }
     }
 
-    document.addEventListener("touchstart", function(event){
-        if(event.touches.length !== 1) {
-            tracking = false;
+    /* DETECT PULL-DOWN GESTURE */
+    document.addEventListener("touchstart",function(event){
+
+        if(refreshing||event.touches.length!==1){
+            tracking=false;
             return;
         }
 
-        const scroller = getActiveScroller();
+        const scroller=getActiveScroller();
 
-        if(!scroller || scroller.scrollTop > 0) {
-            tracking = false;
+        if(!scroller||scroller.scrollTop>2){
+            tracking=false;
             return;
         }
 
-        startY = event.touches[0].clientY;
-        startX = event.touches[0].clientX;
-        tracking = true;
-    }, {passive:true});
+        startY=event.touches[0].clientY;
+        startX=event.touches[0].clientX;
 
-    document.addEventListener("touchmove", function(event){
-        if(!tracking || refreshing || event.touches.length !== 1) return;
+        tracking=true;
 
-        const currentY = event.touches[0].clientY;
-        const currentX = event.touches[0].clientX;
+    },{passive:true});
 
-        const deltaY = currentY - startY;
-        const deltaX = currentX - startX;
+    /* TRIGGER ONE REFRESH IMMEDIATELY */
+    document.addEventListener("touchmove",function(event){
 
-        if(Math.abs(deltaX) > Math.abs(deltaY)) {
-            tracking = false;
+        if(!tracking||refreshing||event.touches.length!==1){
             return;
         }
 
-        const scroller = getActiveScroller();
+        const currentY=event.touches[0].clientY;
+        const currentX=event.touches[0].clientX;
 
-        if(!scroller || scroller.scrollTop > 0) {
-            tracking = false;
+        const deltaY=currentY-startY;
+        const deltaX=currentX-startX;
+
+        /* IGNORE HORIZONTAL SWIPES */
+        if(Math.abs(deltaX)>Math.abs(deltaY)){
+            tracking=false;
             return;
         }
 
-        if(deltaY > 110) {
-            tracking = false;
-            refreshPage();
+        const scroller=getActiveScroller();
+
+        if(!scroller||scroller.scrollTop>2){
+            tracking=false;
+            return;
         }
-    }, {passive:true});
 
-    document.addEventListener("touchend", function(){
-        tracking = false;
-    }, {passive:true});
+        if(deltaY>=REFRESH_DISTANCE){
 
-    document.addEventListener("touchcancel", function(){
-        tracking = false;
-    }, {passive:true});
+            /* PREVENT ANOTHER REFRESH FROM SAME GESTURE */
+            tracking=false;
+
+            refreshCurrentPage();
+        }
+
+    },{passive:true});
+
+    document.addEventListener("touchend",function(){
+        tracking=false;
+    },{passive:true});
+
+    document.addEventListener("touchcancel",function(){
+        tracking=false;
+    },{passive:true});
 
 })();
+
 </script>
 
 </body>
