@@ -488,10 +488,11 @@ let kulzzyVoterPages=[];
 const $=id=>document.getElementById(id);
 
 /* =====================================================
-   BACK NAVIGATION — CONNECT TO MAIN KULZZY PWA
+   BACK NAVIGATION — MAIN KULZZY PWA CONNECTION
 ===================================================== */
 
 const KULZZY_PARENT_ORIGIN="https://kulzzy.github.io";
+const KULZZY_MUSIC_ORIGIN="https://kulzzy.github.io";
 
 let kulzzyCurrentView={type:"section",section:"home"};
 let kulzzyViewStack=[];
@@ -569,18 +570,52 @@ function goBackInKulzzyNavigation(){
     return false;
 }
 
-window.addEventListener("message",event=>{
-    if(
-        event.origin!==KULZZY_PARENT_ORIGIN||
-        event.source!==window.parent
-    )return;
+/* CHECK THAT A BACK MESSAGE CAME FROM A FRAME
+   INSIDE THE CURRENT VOTERS COMPETITION PAGE */
+function isVotersChildFrame(source){
+    const detail=$("kulzzyVotersDetail");
 
-    if(event.data?.type==="KULZZY_APP_BACK"){
-        goBackInKulzzyNavigation();
+    if(!detail||!source)return false;
+
+    const frames=detail.querySelectorAll("iframe");
+
+    return Array.from(frames).some(frame=>{
+        try{
+            return frame.contentWindow===source;
+        }catch(error){
+            return false;
+        }
+    });
+}
+
+/* RECEIVE BACK REQUESTS */
+window.addEventListener("message",event=>{
+
+    /* MESSAGE FROM THE MAIN KULZZY PWA */
+    if(
+        event.origin===KULZZY_PARENT_ORIGIN &&
+        event.source===window.parent
+    ){
+        if(event.data?.type==="KULZZY_APP_BACK"){
+            goBackInKulzzyNavigation();
+        }
+
+        if(event.data?.type==="KULZZY_REQUEST_STATE"){
+            notifyKulzzyParent();
+        }
+
+        return;
     }
 
-    if(event.data?.type==="KULZZY_REQUEST_STATE"){
-        notifyKulzzyParent();
+    /* MESSAGE FROM BEST STREAMING SONG OR ANOTHER
+       DIRECTLY EMBEDDED VOTERS COMPETITION FRAME */
+    if(
+        event.origin===KULZZY_MUSIC_ORIGIN &&
+        event.data?.type==="KULZZY_APP_BACK" &&
+        isVotersChildFrame(event.source) &&
+        kulzzyCurrentView.type==="voter-detail"
+    ){
+        goBackInKulzzyNavigation();
     }
 });
 
