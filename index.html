@@ -325,23 +325,32 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     border:1px solid rgba(255,215,0,.2);border-radius:10px
 }
 .kulzzyVotersDetail{padding:8px 10px 22px}
+
+/* SMALL FLOATING BACK BUTTON */
 .kulzzyVoterBack{
-    position:sticky;
-    top:48px;
-    z-index:99999;
-    display:block;
-    width:100%;
-    border:0;
-    border-radius:9px;
-    padding:14px;
-    margin:0 0 12px;
-    background:#ffd700;
-    color:#07152f;
-    font-weight:bold;
-    font-size:14px;
-    touch-action:manipulation;
-    box-shadow:0 3px 12px rgba(0,0,0,.35);
+    position:sticky!important;
+    top:46px!important;
+    z-index:2147483000!important;
+    display:inline-flex!important;
+    align-items:center;
+    justify-content:center;
+    width:auto!important;
+    max-width:230px;
+    border:1px solid rgba(255,215,0,.8)!important;
+    border-radius:25px!important;
+    padding:9px 15px!important;
+    margin:0 0 12px 0!important;
+    background:#ffd700!important;
+    color:#07152f!important;
+    font-weight:bold!important;
+    font-size:11px!important;
+    box-shadow:0 3px 12px rgba(0,0,0,.4)!important;
+    touch-action:manipulation!important;
 }
+.kulzzyVoterBack:active{
+    background:#e6bd00!important;
+}
+
 .kulzzyVoterDetailTitle{
     font-size:20px;color:#ffd700;font-weight:bold;margin:10px 0 14px
 }
@@ -368,6 +377,11 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     .kulzzyVotersGrid{gap:7px;padding:7px}
     .kulzzyVoterCard img{height:130px}
     .kulzzyVoterCardTitle{font-size:12px;padding:8px}
+    .kulzzyVoterBack{
+        top:44px!important;
+        padding:8px 12px!important;
+        font-size:10px!important
+    }
 }
 @media(min-width:361px) and (max-width:600px){
     .kulzzyNavBtn{font-size:10px}
@@ -408,8 +422,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 </section>
 
 </div><div id="kulzzyHomePageContent"></div>
-<div id="kulzzyMorePageContent"></div>
-<div id="kulzzyPullRefreshIndicator" role="status" aria-live="polite">
+<div id="kulzzyMorePageContent"></div><div id="kulzzyPullRefreshIndicator" role="status" aria-live="polite">
     ↓ Pull down to refresh
 </div><script type="module">
 import {initializeApp}
@@ -1318,20 +1331,6 @@ window.setTimeout(()=>{
 
         showIndicator("Refreshing all pages...",0);
 
-        /*
-          A full reload clears the page caches and reloads:
-          Home, VOTERS, Wishes, Market and More from Firebase.
-          The saved navigation section is restored at startup.
-        */
-
-        try{
-            const activeSection=localStorage.getItem("kulzzyLastSection");
-
-            if(activeSection){
-                localStorage.setItem("kulzzyLastSection",activeSection);
-            }
-        }catch(error){}
-
         window.setTimeout(()=>{
             window.location.reload();
         },350);
@@ -1372,7 +1371,6 @@ window.setTimeout(()=>{
         const deltaY=currentY-startY;
         const deltaX=currentX-startX;
 
-        /* IGNORE SIDEWAYS SWIPES */
         if(Math.abs(deltaX)>Math.abs(deltaY)*MAX_HORIZONTAL_RATIO){
             resetGesture();
             hideIndicator();
@@ -1381,7 +1379,6 @@ window.setTimeout(()=>{
 
         const scroller=getActiveScroller();
 
-        /* REFRESH ONLY WHEN THE PAGE IS AT THE TOP */
         if(!scroller||scroller.scrollTop>2){
             resetGesture();
             hideIndicator();
