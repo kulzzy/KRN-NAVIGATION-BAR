@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07152f">
-<title>Kulzzy Radio Navigation</title>
-
-<style>
+<title>Kulzzy Radio Navigation</title><style>
 *{box-sizing:border-box}
 
 html,body{
@@ -47,7 +44,9 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     height:100dvh!important;min-height:100dvh!important;
     max-height:100dvh!important;overflow-y:auto!important;
     overflow-x:hidden!important;touch-action:auto!important;
-    overscroll-behavior:auto!important;pointer-events:auto!important;
+    overscroll-behavior-y:contain!important;
+    overscroll-behavior-x:none!important;
+    pointer-events:auto!important;
     -webkit-overflow-scrolling:touch;scrollbar-width:none;
     -ms-overflow-style:none
 }
@@ -132,11 +131,12 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     margin:0!important;
     padding:52px 0 24px!important;
     background:#07152f;
-    z-index:2147483647!important;
+    z-index:2147483000!important;
     display:none;
     overflow-y:auto!important;
     overflow-x:hidden!important;
-    overscroll-behavior:contain;
+    overscroll-behavior-y:contain!important;
+    overscroll-behavior-x:none!important;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
     pointer-events:auto!important;
@@ -235,7 +235,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     overflow-x:hidden;
     pointer-events:auto;
     touch-action:auto;
-    overscroll-behavior:auto;
+    overscroll-behavior-y:contain!important;
+    overscroll-behavior-x:none!important;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none
 }
@@ -249,6 +250,36 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     background:transparent!important;color:white;
     overflow:visible!important;line-height:1.6;
     pointer-events:auto!important;touch-action:auto!important
+}
+
+/* PULL-DOWN REFRESH INDICATOR */
+#kulzzyPullRefreshIndicator{
+    position:fixed;
+    top:48px;
+    left:50%;
+    transform:translate(-50%,-12px);
+    z-index:2147483647;
+    display:block;
+    padding:9px 17px;
+    min-width:155px;
+    border:1px solid rgba(255,215,0,.75);
+    border-radius:30px;
+    background:#07152f;
+    color:#ffd700;
+    font-size:12px;
+    font-weight:bold;
+    text-align:center;
+    white-space:nowrap;
+    box-shadow:0 3px 12px rgba(0,0,0,.35);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .15s ease,transform .15s ease,visibility .15s ease
+}
+#kulzzyPullRefreshIndicator.visible{
+    opacity:1;
+    visibility:visible;
+    transform:translate(-50%,0)
 }
 
 /* STATUS AND RETRY MESSAGES */
@@ -328,6 +359,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     #kulzzyContent{padding-top:45px!important}
     #kulzzyHomePageContent{padding-top:45px!important}
     #kulzzyMorePageContent{padding-top:48px!important}
+    #kulzzyPullRefreshIndicator{top:44px}
     .kulzzyMorePageClose{
         top:5px!important;right:5px!important;
         width:34px!important;height:34px!important;
@@ -340,56 +372,46 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 @media(min-width:361px) and (max-width:600px){
     .kulzzyNavBtn{font-size:10px}
 }
-</style>
-</head>
-
-<body>
-
-<nav id="kulzzyNav">
+</style></head><body><nav id="kulzzyNav">
     <button type="button" class="kulzzyNavBtn active" data-section="home">Home</button>
     <button type="button" class="kulzzyNavBtn" data-section="voters">🗳️ VOTERS</button>
     <button type="button" class="kulzzyNavBtn" data-section="wishes">Wishes</button>
     <button type="button" class="kulzzyNavBtn" data-section="market">Market</button>
     <button type="button" class="kulzzyNavBtn" data-section="more">More</button>
-</nav>
+</nav><div id="kulzzyContent"><section id="kulzzy-home" class="kulzzySection">
+    <div id="kulzzyPublished-home" class="kulzzyPublishedContent"></div>
+</section>
 
-<div id="kulzzyContent">
+<section id="kulzzy-request" class="kulzzySection">
+    <div id="kulzzyPublished-request" class="kulzzyPublishedContent"></div>
+</section>
 
-    <section id="kulzzy-home" class="kulzzySection">
-        <div id="kulzzyPublished-home" class="kulzzyPublishedContent"></div>
-    </section>
+<section id="kulzzy-voters" class="kulzzySection">
+    <div id="kulzzyVotersHeading"
+         style="padding:10px 12px;color:#ffd700;font-weight:bold;font-size:20px">
+        VOTERS
+    </div>
+    <div id="kulzzyVotersGrid" class="kulzzyVotersGrid"></div>
+    <div id="kulzzyVotersDetail" class="kulzzyVotersDetail" style="display:none"></div>
+</section>
 
-    <section id="kulzzy-request" class="kulzzySection">
-        <div id="kulzzyPublished-request" class="kulzzyPublishedContent"></div>
-    </section>
+<section id="kulzzy-wishes" class="kulzzySection">
+    <div id="kulzzyPublished-wishes" class="kulzzyPublishedContent"></div>
+</section>
 
-    <section id="kulzzy-voters" class="kulzzySection">
-        <div id="kulzzyVotersHeading"
-             style="padding:10px 12px;color:#ffd700;font-weight:bold;font-size:20px">
-            VOTERS
-        </div>
-        <div id="kulzzyVotersGrid" class="kulzzyVotersGrid"></div>
-        <div id="kulzzyVotersDetail" class="kulzzyVotersDetail" style="display:none"></div>
-    </section>
+<section id="kulzzy-market" class="kulzzySection">
+    <div id="kulzzyPublished-market" class="kulzzyPublishedContent"></div>
+</section>
 
-    <section id="kulzzy-wishes" class="kulzzySection">
-        <div id="kulzzyPublished-wishes" class="kulzzyPublishedContent"></div>
-    </section>
+<section id="kulzzy-more" class="kulzzySection">
+    <div id="kulzzyMorePagesMenu"></div>
+</section>
 
-    <section id="kulzzy-market" class="kulzzySection">
-        <div id="kulzzyPublished-market" class="kulzzyPublishedContent"></div>
-    </section>
-
-    <section id="kulzzy-more" class="kulzzySection">
-        <div id="kulzzyMorePagesMenu"></div>
-    </section>
-
-</div>
-
-<div id="kulzzyHomePageContent"></div>
+</div><div id="kulzzyHomePageContent"></div>
 <div id="kulzzyMorePageContent"></div>
-
-<script type="module">
+<div id="kulzzyPullRefreshIndicator" role="status" aria-live="polite">
+    ↓ Pull down to refresh
+</div><script type="module">
 import {initializeApp}
     from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
@@ -1231,137 +1253,101 @@ window.setTimeout(()=>{
     ]);
 },50);
 
-/* FAST ONE-TIME PULL-DOWN REFRESH */
+/* APP-WIDE PULL-DOWN REFRESH */
 (function(){
     "use strict";
+
+    const indicator=$("kulzzyPullRefreshIndicator");
+
+    const REFRESH_DISTANCE=85;
+    const MAX_HORIZONTAL_RATIO=1.1;
 
     let startY=0;
     let startX=0;
     let tracking=false;
+    let armed=false;
     let refreshing=false;
-
-    const content=$("kulzzyContent");
-    const home=$("kulzzyHomePageContent");
-    const more=$("kulzzyMorePageContent");
-
-    const REFRESH_DISTANCE=70;
+    let currentDistance=0;
 
     function getActiveScroller(){
-        if(more&&more.classList.contains("open"))return more;
-        if(home&&home.classList.contains("open"))return home;
-        return content;
+        const more=$("kulzzyMorePageContent");
+        const home=$("kulzzyHomePageContent");
+
+        if(more&&more.classList.contains("open")){
+            return more;
+        }
+
+        if(home&&home.classList.contains("open")){
+            return home;
+        }
+
+        return $("kulzzyContent");
     }
 
-    /* REFRESH ONLY THE CURRENTLY OPEN PAGE */
-    async function refreshCurrentPage(){
+    function showIndicator(message,distance){
+        if(!indicator)return;
 
+        indicator.textContent=message;
+        indicator.classList.add("visible");
+
+        const movement=Math.min(distance||0,55);
+
+        indicator.style.transform=
+            "translate(-50%,"+(movement*0.45)+"px)";
+    }
+
+    function hideIndicator(){
+        if(!indicator)return;
+
+        indicator.classList.remove("visible");
+        indicator.textContent="↓ Pull down to refresh";
+        indicator.style.transform="translate(-50%,-12px)";
+    }
+
+    function resetGesture(){
+        tracking=false;
+        armed=false;
+        currentDistance=0;
+    }
+
+    function refreshWholeNavigation(){
         if(refreshing)return;
 
         refreshing=true;
+        resetGesture();
+
+        showIndicator("Refreshing all pages...",0);
+
+        /*
+          A full reload clears the page caches and reloads:
+          Home, VOTERS, Wishes, Market and More from Firebase.
+          The saved navigation section is restored at startup.
+        */
 
         try{
+            const activeSection=localStorage.getItem("kulzzyLastSection");
 
-            /* MORE PAGE */
-            if(more&&more.classList.contains("open")){
-
-                closeMorePage();
-
-                if(morePagesLoading){
-                    await morePagesLoading;
-                }
-
-                morePagesLoaded=false;
-                morePagesData=[];
-
-                await loadMorePages();
-
-                return;
+            if(activeSection){
+                localStorage.setItem("kulzzyLastSection",activeSection);
             }
+        }catch(error){}
 
-            /* HOME PAGE */
-            if(home&&home.classList.contains("open")){
-
-                if(homePageLoading){
-                    await homePageLoading;
-                }
-
-                homePageLoaded=false;
-                homePageHTML="";
-                homePageLoading=null;
-
-                await openHomePage();
-
-                return;
-            }
-
-            /* DETERMINE ACTIVE SECTION */
-            const active=document.querySelector(
-                ".kulzzySection.active"
-            );
-
-            if(!active)return;
-
-            const section=active.id.replace("kulzzy-","");
-
-            /* VOTERS */
-            if(section==="voters"){
-
-                if(kulzzyVotersLoading){
-                    await kulzzyVotersLoading;
-                }
-
-                kulzzyVotersLoaded=false;
-                kulzzyVoterPages=[];
-
-                $("kulzzyVotersGrid").innerHTML="";
-
-                await loadKulzzyVoters();
-
-                return;
-            }
-
-            /* NORMAL PUBLISHED PAGES */
-            if(normalSections.includes(section)){
-
-                if(sectionLoading[section]){
-                    await sectionLoading[section];
-                }
-
-                delete sectionCache[section];
-
-                const container=$(
-                    "kulzzyPublished-"+section
-                );
-
-                if(container){
-                    container.innerHTML="";
-                }
-
-                await loadNormalSection(section);
-            }
-
-        }catch(error){
-
-            console.error("Fast refresh error:",error);
-
-        }finally{
-
-            refreshing=false;
-        }
+        window.setTimeout(()=>{
+            window.location.reload();
+        },350);
     }
 
-    /* DETECT PULL-DOWN GESTURE */
     document.addEventListener("touchstart",function(event){
 
         if(refreshing||event.touches.length!==1){
-            tracking=false;
+            resetGesture();
             return;
         }
 
         const scroller=getActiveScroller();
 
         if(!scroller||scroller.scrollTop>2){
-            tracking=false;
+            resetGesture();
             return;
         }
 
@@ -1369,10 +1355,11 @@ window.setTimeout(()=>{
         startX=event.touches[0].clientX;
 
         tracking=true;
+        armed=false;
+        currentDistance=0;
 
-    },{passive:true});
+    },{passive:true,capture:true});
 
-    /* TRIGGER ONE REFRESH IMMEDIATELY */
     document.addEventListener("touchmove",function(event){
 
         if(!tracking||refreshing||event.touches.length!==1){
@@ -1385,40 +1372,58 @@ window.setTimeout(()=>{
         const deltaY=currentY-startY;
         const deltaX=currentX-startX;
 
-        /* IGNORE HORIZONTAL SWIPES */
-        if(Math.abs(deltaX)>Math.abs(deltaY)){
-            tracking=false;
+        /* IGNORE SIDEWAYS SWIPES */
+        if(Math.abs(deltaX)>Math.abs(deltaY)*MAX_HORIZONTAL_RATIO){
+            resetGesture();
+            hideIndicator();
             return;
         }
 
         const scroller=getActiveScroller();
 
+        /* REFRESH ONLY WHEN THE PAGE IS AT THE TOP */
         if(!scroller||scroller.scrollTop>2){
-            tracking=false;
+            resetGesture();
+            hideIndicator();
             return;
         }
 
-        if(deltaY>=REFRESH_DISTANCE){
+        if(deltaY>8){
+            currentDistance=deltaY;
 
-            /* PREVENT ANOTHER REFRESH FROM SAME GESTURE */
-            tracking=false;
-
-            refreshCurrentPage();
+            if(deltaY>=REFRESH_DISTANCE){
+                armed=true;
+                showIndicator("Release to refresh",deltaY);
+            }else{
+                armed=false;
+                showIndicator("↓ Pull down to refresh",deltaY);
+            }
         }
 
-    },{passive:true});
+    },{passive:true,capture:true});
 
     document.addEventListener("touchend",function(){
-        tracking=false;
-    },{passive:true});
+
+        if(!tracking)return;
+
+        const shouldRefresh=armed&&
+            currentDistance>=REFRESH_DISTANCE;
+
+        resetGesture();
+
+        if(shouldRefresh){
+            refreshWholeNavigation();
+        }else{
+            hideIndicator();
+        }
+
+    },{passive:true,capture:true});
 
     document.addEventListener("touchcancel",function(){
-        tracking=false;
-    },{passive:true});
+        resetGesture();
+        hideIndicator();
+    },{passive:true,capture:true});
 
 })();
-
-</script>
-
-</body>
+</script></body>
 </html>
