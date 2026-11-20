@@ -285,40 +285,25 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     transform:translate(-50%,0)
 }
 
-/* FIXED VOTERS BACK BUTTON */
-#kulzzyGlobalVoterBack{
-    position:fixed!important;
-    top:48px!important;
-    left:10px!important;
-    right:10px!important;
-    width:calc(100% - 20px)!important;
-    max-width:320px!important;
-    min-height:38px!important;
-    margin:0 auto!important;
-    padding:9px 14px!important;
-    border:1px solid rgba(255,215,0,.85)!important;
-    border-radius:25px!important;
-    background:#ffd700!important;
-    color:#07152f!important;
-    font-size:11px!important;
-    font-weight:bold!important;
-    line-height:1.2!important;
-    display:none;
-    align-items:center!important;
-    justify-content:center!important;
-    box-shadow:0 3px 12px rgba(0,0,0,.5)!important;
-    z-index:2147483646!important;
-    pointer-events:auto!important;
-    touch-action:manipulation!important;
-    cursor:pointer!important;
+/* NORMAL BACK BUTTON INSIDE EACH VOTING PAGE */
+.kulzzyVoterBack{
+    display:block;
+    width:100%;
+    max-width:260px;
+    margin:0 0 15px;
+    padding:11px 15px;
+    border:1px solid #ffd700;
+    border-radius:9px;
+    background:#ffd700;
+    color:#07152f;
+    font-size:12px;
+    font-weight:bold;
+    cursor:pointer;
+    text-align:center;
+    touch-action:manipulation;
     -webkit-tap-highlight-color:transparent
 }
-#kulzzyGlobalVoterBack.visible{
-    display:flex!important
-}
-#kulzzyGlobalVoterBack:active{
-    background:#e6bd00!important
-}
+.kulzzyVoterBack:active{background:#e6bd00}
 
 /* STATUS AND RETRY MESSAGES */
 .kulzzyPageStatus{
@@ -362,7 +347,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     background:rgba(7,21,47,.8);
     border:1px solid rgba(255,215,0,.2);border-radius:10px
 }
-.kulzzyVotersDetail{padding:56px 10px 22px}
+.kulzzyVotersDetail{padding:12px 10px 22px}
 
 .kulzzyVoterDetailTitle{
     font-size:20px;color:#ffd700;font-weight:bold;margin:10px 0 14px
@@ -375,6 +360,26 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     background:white;border-radius:8px
 }
 
+/* BACK NOTICE */
+#kulzzyBackNotice{
+    position:fixed;
+    bottom:35px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2147483647;
+    display:none;
+    padding:12px 18px;
+    border:1px solid #ffd700;
+    border-radius:25px;
+    background:#07152f;
+    color:#ffd700;
+    font-size:13px;
+    font-weight:bold;
+    white-space:nowrap;
+    box-shadow:0 3px 12px rgba(0,0,0,.4);
+    pointer-events:none
+}
+
 @media(max-width:360px){
     #kulzzyNav{width:calc(100% - 8px);height:38px}
     .kulzzyNavBtn{height:32px;font-size:9px}
@@ -382,7 +387,6 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     #kulzzyHomePageContent{padding-top:45px!important}
     #kulzzyMorePageContent{padding-top:48px!important}
     #kulzzyPullRefreshIndicator{top:44px}
-    #kulzzyGlobalVoterBack{top:44px!important}
     .kulzzyMorePageClose{
         top:5px!important;right:5px!important;
         width:34px!important;height:34px!important;
@@ -407,11 +411,6 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
     <button type="button" class="kulzzyNavBtn" data-section="market">Market</button>
     <button type="button" class="kulzzyNavBtn" data-section="more">More</button>
 </nav>
-
-<!-- FIXED BUTTON: OUTSIDE THE SCROLLING CONTENT AND IFRAMES -->
-<button id="kulzzyGlobalVoterBack" type="button" aria-label="Back to voting competitions">
-    ← BACK TO VOTING COMPETITIONS
-</button>
 
 <div id="kulzzyContent">
 
@@ -452,6 +451,8 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 <div id="kulzzyPullRefreshIndicator" role="status" aria-live="polite">
     ↓ Pull down to refresh
 </div>
+
+<div id="kulzzyBackNotice" role="status" aria-live="polite"></div>
 
 <script type="module">
 import {initializeApp}
@@ -499,35 +500,158 @@ let kulzzyVoterPages=[];
 
 const $=id=>document.getElementById(id);
 
-/* GLOBAL VOTERS BACK BUTTON */
-const voterBackButton=$("kulzzyGlobalVoterBack");
+/* HISTORY NAVIGATION STATE */
+let kulzzyCurrentView={type:"section",section:"home"};
+let kulzzyHandlingPopstate=false;
+let kulzzyBackExitTime=0;
+let kulzzyBackNoticeTimer=null;
 
-function closeVoterDetail(){
-    const detail=$("kulzzyVotersDetail");
-    const grid=$("kulzzyVotersGrid");
-    const content=$("kulzzyContent");
+function showKulzzyBackMessage(message){
+    const notice=$("kulzzyBackNotice");
+    if(!notice)return;
 
-    if(detail){
-        detail.style.display="none";
-        detail.innerHTML="";
-    }
+    notice.textContent=message;
+    notice.style.display="block";
 
-    if(grid){
-        grid.style.display="grid";
-    }
+    clearTimeout(kulzzyBackNoticeTimer);
 
-    if(voterBackButton){
-        voterBackButton.classList.remove("visible");
-    }
+    kulzzyBackNoticeTimer=setTimeout(()=>{
+        notice.style.display="none";
+    },1800);
+}
 
-    if(content){
-        content.scrollTop=0;
+function saveKulzzyHistory(view,replace=false){
+    kulzzyCurrentView={...view};
+
+    const state={
+        kulzzyNavigation:true,
+        view:{...view}
+    };
+
+    try{
+        if(replace){
+            history.replaceState(state,"",location.href);
+        }else{
+            history.pushState(state,"",location.href);
+        }
+    }catch(error){
+        console.warn("Could not update navigation history:",error);
     }
 }
 
-if(voterBackButton){
-    voterBackButton.addEventListener("click",closeVoterDetail);
+function navigateKulzzy(view){
+    saveKulzzyHistory(view);
+    renderKulzzyView(view);
 }
+
+function renderKulzzyView(view){
+    if(!view)return;
+
+    if(view.type==="voter-detail"){
+        const page=kulzzyVoterPages.find(item=>item.id===view.id);
+
+        if(page){
+            openKulzzyVoterPage(page,false);
+        }else{
+            openSection("voters",
+                document.querySelector('.kulzzyNavBtn[data-section="voters"]')
+            );
+        }
+
+        return;
+    }
+
+    if(view.type==="more-detail"){
+        const page=morePagesData.find(item=>item.id===view.id);
+
+        if(page){
+            showMorePage(page,null,false);
+        }else{
+            openSection("more",
+                document.querySelector('.kulzzyNavBtn[data-section="more"]')
+            );
+        }
+
+        return;
+    }
+
+    if(view.type==="section"){
+        const section=normalSections.includes(view.section)||
+            view.section==="more"
+            ?view.section
+            :"home";
+
+        const button=document.querySelector(
+            '.kulzzyNavBtn[data-section="'+section+'"]'
+        );
+
+        openSection(section,button);
+    }
+}
+
+function returnToKulzzyRoot(){
+    const now=Date.now();
+
+    if(now-kulzzyBackExitTime<2000){
+        showKulzzyBackMessage("Leaving Kulzzy Radio...");
+
+        /*
+         * Browsers generally prevent scripts from closing tabs
+         * that were not opened by JavaScript. This attempts to
+         * close the app where the platform permits it.
+         */
+        try{
+            window.close();
+        }catch(error){}
+
+        return;
+    }
+
+    kulzzyBackExitTime=now;
+    showKulzzyBackMessage("Tap Back Again to Exit");
+}
+
+/* HANDLE PHONE AND BROWSER BACK BUTTON */
+window.addEventListener("popstate",event=>{
+    if(kulzzyHandlingPopstate)return;
+
+    kulzzyHandlingPopstate=true;
+
+    const state=event.state;
+
+    if(state&&state.kulzzyNavigation&&state.view){
+        kulzzyCurrentView={...state.view};
+        renderKulzzyView(state.view);
+
+        setTimeout(()=>{
+            kulzzyHandlingPopstate=false;
+        },100);
+
+        return;
+    }
+
+    /*
+     * We reached the beginning of Kulzzy's internal history.
+     * Restore the app history entry so another Back tap can
+     * be handled without immediately navigating away.
+     */
+    returnToKulzzyRoot();
+
+    try{
+        history.pushState(
+            {
+                kulzzyNavigation:true,
+                view:{...kulzzyCurrentView}
+            },
+            "",
+            location.href
+        );
+    }catch(error){}
+
+    setTimeout(()=>{
+        kulzzyHandlingPopstate=false;
+    },100);
+});
 
 /* SHOW ERRORS INSTEAD OF LEAVING PAGES BLANK */
 function showPageStatus(container,message,retry){
@@ -918,7 +1042,10 @@ function loadMorePages(){
                 button.append(icon,title);
 
                 button.addEventListener("click",()=>{
-                    showMorePage(page,button);
+                    navigateKulzzy({
+                        type:"more-detail",
+                        id:page.id
+                    });
                 });
 
                 fragment.appendChild(button);
@@ -953,11 +1080,18 @@ function loadMorePages(){
 }
 
 /* OPEN A MORE PAGE */
-function showMorePage(page,button){
+function showMorePage(page,button,addHistory=true){
     const menu=$("kulzzyMorePagesMenu");
     const content=$("kulzzyMorePageContent");
 
     if(!content||!menu)return;
+
+    if(addHistory){
+        saveKulzzyHistory({
+            type:"more-detail",
+            id:page.id
+        });
+    }
 
     document.querySelectorAll(".kulzzyMorePageButton")
         .forEach(item=>item.classList.remove("active"));
@@ -973,7 +1107,13 @@ function showMorePage(page,button){
     close.textContent="✕";
     close.setAttribute("aria-label","Close page");
 
-    close.addEventListener("click",closeMorePage);
+    close.addEventListener("click",()=>{
+        if(history.state&&history.state.kulzzyNavigation){
+            history.back();
+        }else{
+            closeMorePage();
+        }
+    });
 
     const box=document.createElement("div");
     box.className="kulzzyMorePageContentBox";
@@ -1104,7 +1244,10 @@ function loadKulzzyVoters(){
                 card.append(image,title);
 
                 card.addEventListener("click",()=>{
-                    openKulzzyVoterPage(page);
+                    navigateKulzzy({
+                        type:"voter-detail",
+                        id:page.id
+                    });
                 });
 
                 fragment.appendChild(card);
@@ -1134,18 +1277,37 @@ function loadKulzzyVoters(){
 }
 
 /* OPEN A VOTING COMPETITION */
-function openKulzzyVoterPage(page){
+function openKulzzyVoterPage(page,addHistory=true){
     const grid=$("kulzzyVotersGrid");
     const detail=$("kulzzyVotersDetail");
 
     if(!grid||!detail)return;
 
+    if(addHistory){
+        saveKulzzyHistory({
+            type:"voter-detail",
+            id:page.id
+        });
+    }
+
     grid.style.display="none";
     detail.style.display="block";
     detail.innerHTML="";
 
-    /* SHOW THE FIXED PARENT-PAGE BACK BUTTON */
-    voterBackButton?.classList.add("visible");
+    /* NORMAL BACK BUTTON INSIDE THE PAGE */
+    const back=document.createElement("button");
+
+    back.type="button";
+    back.className="kulzzyVoterBack";
+    back.textContent="← BACK TO VOTING COMPETITIONS";
+
+    back.addEventListener("click",()=>{
+        if(history.state&&history.state.kulzzyNavigation){
+            history.back();
+        }else{
+            closeVoterDetail();
+        }
+    });
 
     const title=document.createElement("div");
 
@@ -1155,7 +1317,7 @@ function openKulzzyVoterPage(page){
     const body=document.createElement("div");
     body.className="kulzzyVoterDetailBody";
 
-    detail.append(title,body);
+    detail.append(back,title,body);
 
     const target=page.url||page.pageUrl||page.link||"";
 
@@ -1198,11 +1360,6 @@ function openSection(section,button){
     const homeOverlay=$("kulzzyHomePageContent");
     const moreContent=$("kulzzyMorePageContent");
     const moreMenu=$("kulzzyMorePagesMenu");
-
-    /* HIDE BACK BUTTON WHEN LEAVING VOTERS */
-    if(section!=="voters"){
-        voterBackButton?.classList.remove("visible");
-    }
 
     document.querySelectorAll(".kulzzyNavBtn").forEach(item=>{
         item.classList.toggle("active",item===button);
@@ -1249,9 +1406,6 @@ function openSection(section,button){
         const grid=$("kulzzyVotersGrid");
         const detail=$("kulzzyVotersDetail");
 
-        /* OPENING VOTERS ALWAYS STARTS AT THE COMPETITION CARDS */
-        voterBackButton?.classList.remove("visible");
-
         if(grid){
             grid.style.display="grid";
         }
@@ -1275,14 +1429,27 @@ window.kulzzyOpen=function(section,button){
             '.kulzzyNavBtn[data-section="'+section+'"]'
         );
 
-    openSection(section,actualButton);
+    navigateKulzzy({
+        type:"section",
+        section
+    });
+
+    if(actualButton){
+        document.querySelectorAll(".kulzzyNavBtn").forEach(item=>{
+            item.classList.toggle("active",item===actualButton);
+        });
+    }
 };
 
 /* REGISTER NAVIGATION CLICKS */
 document.querySelectorAll(".kulzzyNavBtn").forEach(button=>{
     button.addEventListener("click",event=>{
         event.preventDefault();
-        openSection(button.dataset.section,button);
+
+        navigateKulzzy({
+            type:"section",
+            section:button.dataset.section
+        });
     });
 });
 
@@ -1307,6 +1474,12 @@ const initialButton=
     document.querySelector(
         '.kulzzyNavBtn[data-section="home"]'
     );
+
+/* START THE APP WITH A ROOT HISTORY ENTRY */
+saveKulzzyHistory({
+    type:"section",
+    section:savedSection
+},true);
 
 openSection(savedSection,initialButton);
 
