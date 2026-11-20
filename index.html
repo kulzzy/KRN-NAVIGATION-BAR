@@ -210,13 +210,27 @@ notifyKulzzyParent();
 return true;
 }
 
-/*
-FIXED MUSIC BACK MESSAGE:
-Accept messages only from the iframe currently displayed
-inside the VOTERS detail page. Then click the same existing
-BACK TO VOTING COMPETITIONS button used by the navigation.
-*/
-window.addEventListener("message",event=>{
+/* FIXED MUSIC BACK MESSAGE */
+window.addEventListener("message",function(event){
+
+    const detail=$("kulzzyVotersDetail");
+
+    const wrapperFrame=detail?.querySelector(
+        ".kulzzyVoterDetailBody iframe"
+    );
+
+    /* Return from the music page to the VOTERS competition list */
+    if(
+        wrapperFrame &&
+        event.source===wrapperFrame.contentWindow &&
+        (
+            event.data?.type==="KULZZY_APP_BACK" ||
+            event.data?.type==="KULZZY_RETURN_TO_VOTING_COMPETITIONS"
+        )
+    ){
+        goBackInKulzzyNavigation();
+        return;
+    }
 
     /* Messages from the outer parent application */
     if(
@@ -229,30 +243,6 @@ window.addEventListener("message",event=>{
 
         if(event.data?.type==="KULZZY_REQUEST_STATE"){
             notifyKulzzyParent();
-        }
-
-        return;
-    }
-
-    const detail=$("kulzzyVotersDetail");
-    const musicFrame=detail?.querySelector(
-        ".kulzzyVoterDetailBody iframe"
-    );
-
-    if(
-        event.source===musicFrame?.contentWindow &&
-        (
-            event.data?.type==="KULZZY_RETURN_TO_VOTING_COMPETITIONS" ||
-            event.data?.type==="KULZZY_APP_BACK"
-        ) &&
-        kulzzyCurrentView.type==="voter-detail"
-    ){
-        const backButton=detail.querySelector(".kulzzyVoterBack");
-
-        if(backButton){
-            backButton.click();
-        }else{
-            goBackInKulzzyNavigation();
         }
 
         return;
