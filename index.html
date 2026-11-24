@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#07152f">
 <title>Kulzzy Radio Navigation</title>
 
@@ -10,13 +10,36 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;min-width:0;height:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:transparent;touch-action:auto;pointer-events:auto}
 body{overflow:hidden;-webkit-overflow-scrolling:touch}
-#kulzzyNav{position:fixed;top:0;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:520px;height:40px;background:rgba(7,21,47,.98);border:1px solid rgba(255,215,0,.45);border-radius:11px;display:flex;align-items:center;justify-content:space-around;padding:2px;z-index:2147483647;box-shadow:0 2px 8px rgba(0,0,0,.2);pointer-events:auto;touch-action:manipulation}
+
+#kulzzyNav{
+position:fixed;
+top:env(safe-area-inset-top, 0px);
+left:50%;
+transform:translateX(-50%);
+width:calc(100% - 16px);
+max-width:520px;
+height:40px;
+background:rgba(7,21,47,.98);
+border:1px solid rgba(255,215,0,.45);
+border-radius:11px;
+display:flex;
+align-items:center;
+justify-content:space-around;
+padding:2px;
+z-index:2147483647;
+box-shadow:0 2px 8px rgba(0,0,0,.2);
+pointer-events:auto;
+touch-action:manipulation;
+}
+
 .kulzzyNavBtn{flex:1;width:100%;height:34px;border:0;background:transparent;color:white;font-size:11px;font-weight:bold;border-radius:8px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;pointer-events:auto;touch-action:manipulation;padding:0 2px}
 .kulzzyNavBtn:hover{background:rgba(255,215,0,.15);color:#ffd700}
 .kulzzyNavBtn:active{background:rgba(255,215,0,.25)}
 .kulzzyNavBtn.active{background:#ffd700;color:#07152f}
-#kulzzyContent{position:relative;z-index:1;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:48px 0 30px!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:auto!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;pointer-events:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+
+#kulzzyContent{position:relative;z-index:1;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:calc(48px + env(safe-area-inset-top, 0px)) 0 30px!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:auto!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;pointer-events:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 #kulzzyContent::-webkit-scrollbar{display:none}
+
 .kulzzySection{display:none;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:0!important;position:relative;left:0;right:0;overflow:visible!important;touch-action:auto!important;pointer-events:auto!important}
 .kulzzySection.active{display:block}
 .kulzzyPublishedContent{display:block;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:0!important;overflow:visible!important;touch-action:auto!important;pointer-events:auto!important;-webkit-overflow-scrolling:touch}
@@ -25,6 +48,7 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyPublishedContent img{max-width:100%;height:auto}
 .kulzzyPublishedContent iframe{display:block;width:100%!important;max-width:100%!important;border:0}
 .kulzzyPublishedContent table{max-width:100%}
+
 #kulzzyMorePagesMenu{width:100%;max-width:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;pointer-events:auto!important;touch-action:auto!important}
 .kulzzyMorePageButton{width:100%;border:1px solid rgba(255,215,0,.35);border-radius:10px;padding:12px;background:#07152f;color:white;text-align:left;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;pointer-events:auto!important;touch-action:manipulation}
 .kulzzyMorePageButton:hover{background:rgba(255,215,0,.12);color:#ffd700}
@@ -32,12 +56,16 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyMorePageButton.active{background:#ffd700;color:#07152f}
 .kulzzyMorePageIcon{width:34px;height:34px;min-width:34px;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);border-radius:9px;font-size:20px;line-height:1;pointer-events:none}
 .kulzzyMorePageTitle{flex:1;min-width:0;line-height:1.3;pointer-events:none}
-#kulzzyMorePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:52px 0 24px!important;background:#07152f;z-index:2147483000!important;display:none;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;pointer-events:auto!important;touch-action:pan-y!important}
+
+#kulzzyMorePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:calc(52px + env(safe-area-inset-top, 0px)) 0 24px!important;background:#07152f;z-index:2147483000!important;display:none;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;pointer-events:auto!important;touch-action:pan-y!important}
 #kulzzyMorePageContent::-webkit-scrollbar{display:none}
 #kulzzyMorePageContent.open{display:block!important}
+
 .kulzzyMorePageContentBox{position:relative;z-index:1;width:100%;max-width:none;margin:0;padding:0 0 25px;background:transparent;color:white;border:0;border-radius:0;overflow:visible!important;line-height:1.6;pointer-events:auto!important;touch-action:auto!important}
-.kulzzyMorePageClose{position:fixed!important;top:6px!important;right:8px!important;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;border:1px solid rgba(255,215,0,.7)!important;border-radius:9px!important;background:#07152f!important;color:#ffd700!important;font-size:21px!important;font-weight:bold!important;line-height:1!important;cursor:pointer!important;z-index:2147483646!important;display:flex!important;align-items:center!important;justify-content:center!important;box-shadow:0 2px 8px rgba(0,0,0,.5)!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation!important;pointer-events:auto!important}
+
+.kulzzyMorePageClose{position:fixed!important;top:calc(6px + env(safe-area-inset-top, 0px))!important;right:8px!important;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;border:1px solid rgba(255,215,0,.7)!important;border-radius:9px!important;background:#07152f!important;color:#ffd700!important;font-size:21px!important;font-weight:bold!important;line-height:1!important;cursor:pointer!important;z-index:2147483646!important;display:flex!important;align-items:center!important;justify-content:center!important;box-shadow:0 2px 8px rgba(0,0,0,.5)!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation!important;pointer-events:auto!important}
 .kulzzyMorePageClose:active{background:#ffd700!important;color:#07152f!important}
+
 .kulzzyMorePageContentBox *, .kulzzyHomePageContentBox *{box-sizing:border-box;max-width:100%}
 .kulzzyMorePageContentBox img,.kulzzyHomePageContentBox img{max-width:100%!important;height:auto!important}
 .kulzzyMorePageContentBox video,.kulzzyHomePageContentBox video{max-width:100%!important;height:auto!important;pointer-events:auto!important}
@@ -47,13 +75,17 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyMorePageContentBox p,.kulzzyHomePageContentBox p{line-height:1.7}
 .kulzzyMorePageContentBox a,.kulzzyHomePageContentBox a{word-break:break-word}
 .kulzzyMorePageContentBox ul,.kulzzyMorePageContentBox ol,.kulzzyHomePageContentBox ul,.kulzzyHomePageContentBox ol{padding-left:25px}
-#kulzzyHomePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:48px 0 25px!important;background:transparent!important;z-index:2147483000!important;display:none;overflow-y:auto;overflow-x:hidden;pointer-events:auto;touch-action:auto;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+
+#kulzzyHomePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:calc(48px + env(safe-area-inset-top, 0px)) 0 25px!important;background:transparent!important;z-index:2147483000!important;display:none;overflow-y:auto;overflow-x:hidden;pointer-events:auto;touch-action:auto;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 #kulzzyHomePageContent::-webkit-scrollbar{display:none}
 #kulzzyHomePageContent.open{display:block!important}
+
 #kulzzyNav{z-index:2147483647!important}
 .kulzzyHomePageContentBox{width:100%;max-width:none;margin:0;padding:0 0 25px;background:transparent!important;color:white;overflow:visible!important;line-height:1.6;pointer-events:auto!important;touch-action:auto!important}
-#kulzzyPullRefreshIndicator{position:fixed;top:48px;left:50%;transform:translate(-50%,-12px);z-index:2147483647;display:block;padding:9px 17px;min-width:155px;border:1px solid rgba(255,215,0,.75);border-radius:30px;background:#07152f;color:#ffd700;font-size:12px;font-weight:bold;text-align:center;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
+
+#kulzzyPullRefreshIndicator{position:fixed;top:calc(48px + env(safe-area-inset-top, 0px));left:50%;transform:translate(-50%,-12px);z-index:2147483647;display:block;padding:9px 17px;min-width:155px;border:1px solid rgba(255,215,0,.75);border-radius:30px;background:#07152f;color:#ffd700;font-size:12px;font-weight:bold;text-align:center;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
 #kulzzyPullRefreshIndicator.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
 .kulzzyVoterBack{display:block;width:100%;max-width:260px;margin:0 0 15px;padding:11px 15px;border:1px solid #ffd700;border-radius:9px;background:#ffd700;color:#07152f;font-size:12px;font-weight:bold;cursor:pointer;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .kulzzyVoterBack:active{background:#e6bd00}
 .kulzzyPageStatus{margin:10px;padding:16px;border:1px solid rgba(255,215,0,.45);border-radius:10px;background:rgba(7,21,47,.94);color:#fff;text-align:center;line-height:1.5;overflow-wrap:anywhere}
@@ -67,20 +99,27 @@ body{overflow:hidden;-webkit-overflow-scrolling:touch}
 .kulzzyVoterDetailTitle{font-size:20px;color:#ffd700;font-weight:bold;margin:10px 0 14px}
 .kulzzyVoterDetailBody{width:100%;overflow:visible;background:transparent;color:white}
 .kulzzyVoterDetailBody iframe{display:block;width:100%;min-height:75vh;border:0;background:white;border-radius:8px}
+
 #kulzzyBackNotice{position:fixed;bottom:35px;left:50%;transform:translateX(-50%);z-index:2147483647;display:none;padding:12px 18px;border:1px solid #ffd700;border-radius:25px;background:#07152f;color:#ffd700;font-size:13px;font-weight:bold;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.4);pointer-events:none}
+
 @media(max-width:360px){
 #kulzzyNav{width:calc(100% - 8px);height:38px}
 .kulzzyNavBtn{height:32px;font-size:9px}
-#kulzzyContent{padding-top:45px!important}
-#kulzzyHomePageContent{padding-top:45px!important}
-#kulzzyMorePageContent{padding-top:48px!important}
-#kulzzyPullRefreshIndicator{top:44px}
-.kulzzyMorePageClose{top:5px!important;right:5px!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
+
+#kulzzyContent{padding-top:calc(45px + env(safe-area-inset-top, 0px))!important}
+#kulzzyHomePageContent{padding-top:calc(45px + env(safe-area-inset-top, 0px))!important}
+#kulzzyMorePageContent{padding-top:calc(48px + env(safe-area-inset-top, 0px))!important}
+#kulzzyPullRefreshIndicator{top:calc(44px + env(safe-area-inset-top, 0px))}
+.kulzzyMorePageClose{top:calc(5px + env(safe-area-inset-top, 0px))!important;right:5px!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
+
 .kulzzyVotersGrid{gap:7px;padding:7px}
 .kulzzyVoterCard img{height:130px}
 .kulzzyVoterCardTitle{font-size:12px;padding:8px}
 }
-@media(min-width:361px) and (max-width:600px){.kulzzyNavBtn{font-size:10px}}
+
+@media(min-width:361px) and (max-width:600px){
+.kulzzyNavBtn{font-size:10px}
+}
 </style>
 </head>
 
