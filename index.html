@@ -268,6 +268,33 @@ function navigateKulzzy(view){saveKulzzyHistory(view);renderKulzzyView(view);}
 
 /* BACK FUNCTION */
 function goBackInKulzzyNavigation(){
+
+/* RETURN TO MORE MENU WHEN A MORE PAGE IS CLOSED */
+if(kulzzyCurrentView?.type==="more-detail"){
+
+kulzzyViewStack=[{type:"section",section:"more"}];
+kulzzyCurrentView={type:"section",section:"more"};
+
+closeMorePage();
+closeHomePage();
+
+const menu=$("kulzzyMorePagesMenu");
+if(menu)menu.style.display="flex";
+
+document.querySelectorAll(".kulzzyNavBtn").forEach(button=>{
+button.classList.toggle("active",button.dataset.section==="more");
+});
+
+document.querySelectorAll(".kulzzySection").forEach(section=>{
+section.classList.toggle("active",section.id==="kulzzy-more");
+});
+
+$("kulzzyContent").scrollTop=0;
+notifyKulzzyParent();
+return true;
+}
+
+/* KEEP THE EXISTING VOTERS BACK BEHAVIOUR */
 kulzzyViewStack=[{type:"section",section:"voters"}];
 kulzzyCurrentView={type:"section",section:"voters"};
 
@@ -815,6 +842,51 @@ showIndicator("Refreshing all pages...",0);
 window.setTimeout(()=>window.location.reload(),350);
 }
 
+/* FAST HOME-ONLY REFRESH */
+function refreshHomeContent(){
+if(refreshing)return;
+
+refreshing=true;
+resetGesture();
+showIndicator("Refreshing Home...",0);
+
+if(!db){
+refreshing=false;
+hideIndicator();
+return;
+}
+
+homePageLoaded=false;
+homePageHTML="";
+homePageLoading=null;
+
+const box=$("kulzzyHomeOverlayBox");
+if(box)box.innerHTML="";
+
+get(ref(db,"kulzzyContent/home")).then(snapshot=>{
+homePageHTML=snapshot.exists()?getPageHTML(snapshot.val()):"";
+homePageLoaded=true;
+
+displayNormalContent("home",homePageHTML);
+
+if($("kulzzyHomePageContent")?.classList.contains("open")){
+renderHomeOverlay();
+}
+
+showIndicator("Home refreshed successfully!",0);
+
+}).catch(error=>{
+console.error("Home refresh error:",error);
+showIndicator("Home refresh failed. Try again.",0);
+
+}).finally(()=>{
+window.setTimeout(()=>{
+refreshing=false;
+hideIndicator();
+},700);
+});
+}
+
 document.addEventListener("touchstart",function(event){
 if(refreshing||event.touches.length!==1){resetGesture();return;}
 const scroller=getActiveScroller();
@@ -844,13 +916,30 @@ else{armed=false;showIndicator("↓ Pull down to refresh",deltaY);}
 
 document.addEventListener("touchend",function(){
 if(!tracking)return;
+
 const shouldRefresh=armed&&currentDistance>=REFRESH_DISTANCE;
 resetGesture();
-if(shouldRefresh)refreshWholeNavigation();
-else hideIndicator();
+
+if(shouldRefresh){
+const home=$("kulzzyHomePageContent");
+
+if(home&&home.classList.contains("open")){
+refreshHomeContent();
+}else{
+refreshWholeNavigation();
+}
+
+}else{
+hideIndicator();
+}
+
 },{passive:true,capture:true});
 
-document.addEventListener("touchcancel",function(){resetGesture();hideIndicator();},{passive:true,capture:true});
+document.addEventListener("touchcancel",function(){
+resetGesture();
+hideIndicator();
+},{passive:true,capture:true});
+
 })();
 </script>
 
