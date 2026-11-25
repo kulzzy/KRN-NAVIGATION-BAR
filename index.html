@@ -23,15 +23,17 @@ transform:translateX(-50%);
 width:calc(100% - 16px);
 max-width:520px;
 height:40px;
-background:rgba(7,21,47,.98);
-border:1px solid rgba(255,215,0,.45);
+background:transparent!important;
+border:0!important;
 border-radius:11px;
 display:flex;
 align-items:center;
 justify-content:space-around;
 padding:2px;
-z-index:2147483647;
-box-shadow:0 2px 8px rgba(0,0,0,.2);
+z-index:2147483647!important;
+box-shadow:none!important;
+backdrop-filter:none!important;
+-webkit-backdrop-filter:none!important;
 pointer-events:auto;
 touch-action:manipulation;
 }
@@ -41,7 +43,27 @@ touch-action:manipulation;
 .kulzzyNavBtn:active{background:rgba(255,215,0,.25)}
 .kulzzyNavBtn.active{background:#ffd700;color:#07152f}
 
-#kulzzyContent{position:relative;z-index:1;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:calc(48px + var(--kulzzy-safe-top)) 0 30px!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:auto!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;pointer-events:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+#kulzzyContent{
+position:relative;
+z-index:1;
+width:100%!important;
+max-width:none!important;
+min-width:0;
+margin:0!important;
+padding:var(--kulzzy-safe-top) 0 30px!important;
+height:100dvh!important;
+min-height:100dvh!important;
+max-height:100dvh!important;
+overflow-y:auto!important;
+overflow-x:hidden!important;
+touch-action:auto!important;
+overscroll-behavior-y:contain!important;
+overscroll-behavior-x:none!important;
+pointer-events:auto!important;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+-ms-overflow-style:none;
+}
 #kulzzyContent::-webkit-scrollbar{display:none}
 
 .kulzzySection{display:none;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:0!important;position:relative;left:0;right:0;overflow:visible!important;touch-action:auto!important;pointer-events:auto!important}
@@ -61,7 +83,27 @@ touch-action:manipulation;
 .kulzzyMorePageIcon{width:34px;height:34px;min-width:34px;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);border-radius:9px;font-size:20px;line-height:1;pointer-events:none}
 .kulzzyMorePageTitle{flex:1;min-width:0;line-height:1.3;pointer-events:none}
 
-#kulzzyMorePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:calc(52px + var(--kulzzy-safe-top)) 0 24px!important;background:#07152f;z-index:2147483000!important;display:none;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;pointer-events:auto!important;touch-action:pan-y!important}
+#kulzzyMorePageContent{
+position:fixed!important;
+inset:0!important;
+width:100%!important;
+height:100dvh!important;
+min-height:100dvh!important;
+max-height:100dvh!important;
+margin:0!important;
+padding:var(--kulzzy-safe-top) 0 24px!important;
+background:#07152f;
+z-index:2147483000!important;
+display:none;
+overflow-y:auto!important;
+overflow-x:hidden!important;
+overscroll-behavior-y:contain!important;
+overscroll-behavior-x:none!important;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+pointer-events:auto!important;
+touch-action:pan-y!important;
+}
 #kulzzyMorePageContent::-webkit-scrollbar{display:none}
 #kulzzyMorePageContent.open{display:block!important}
 
@@ -80,7 +122,26 @@ touch-action:manipulation;
 .kulzzyMorePageContentBox a,.kulzzyHomePageContentBox a{word-break:break-word}
 .kulzzyMorePageContentBox ul,.kulzzyMorePageContentBox ol,.kulzzyHomePageContentBox ul,.kulzzyHomePageContentBox ol{padding-left:25px}
 
-#kulzzyHomePageContent{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:calc(48px + var(--kulzzy-safe-top)) 0 25px!important;background:transparent!important;z-index:2147483000!important;display:none;overflow-y:auto;overflow-x:hidden;pointer-events:auto;touch-action:auto;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#kulzzyHomePageContent{
+position:fixed!important;
+inset:0!important;
+width:100%!important;
+height:100dvh!important;
+min-height:100dvh!important;
+margin:0!important;
+padding:var(--kulzzy-safe-top) 0 25px!important;
+background:transparent!important;
+z-index:2147483000!important;
+display:none;
+overflow-y:auto;
+overflow-x:hidden;
+pointer-events:auto;
+touch-action:auto;
+overscroll-behavior-y:contain!important;
+overscroll-behavior-x:none!important;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+}
 #kulzzyHomePageContent::-webkit-scrollbar{display:none}
 #kulzzyHomePageContent.open{display:block!important}
 
@@ -110,10 +171,6 @@ touch-action:manipulation;
 #kulzzyNav{width:calc(100% - 8px);height:38px}
 .kulzzyNavBtn{height:32px;font-size:9px}
 
-#kulzzyContent{padding-top:calc(45px + var(--kulzzy-safe-top))!important}
-#kulzzyHomePageContent{padding-top:calc(45px + var(--kulzzy-safe-top))!important}
-#kulzzyMorePageContent{padding-top:calc(48px + var(--kulzzy-safe-top))!important}
-#kulzzyPullRefreshIndicator{top:calc(44px + var(--kulzzy-safe-top))}
 .kulzzyMorePageClose{top:calc(5px + var(--kulzzy-safe-top))!important;right:5px!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
 
 .kulzzyVotersGrid{gap:7px;padding:7px}
