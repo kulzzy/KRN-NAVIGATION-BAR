@@ -15,7 +15,6 @@
 html,body{margin:0;padding:0;width:100%;min-width:0;height:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:transparent;touch-action:auto;pointer-events:auto}
 body{overflow:hidden;-webkit-overflow-scrolling:touch}
 
-/* FULL-WIDTH AIRTEL-STYLE TOP NAVIGATION BACKGROUND */
 #kulzzyNav{
 position:fixed;
 top:0;
@@ -63,7 +62,6 @@ touch-action:manipulation;
 .kulzzyMorePageIcon{width:34px;height:34px;min-width:34px;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);border-radius:9px;font-size:20px;line-height:1;pointer-events:none}
 .kulzzyMorePageTitle{flex:1;min-width:0;line-height:1.3;pointer-events:none}
 
-/* MORE PAGES: FULL SCREEN ABOVE NAVIGATION */
 #kulzzyMorePageContent{
 position:fixed!important;
 inset:0!important;
@@ -133,6 +131,30 @@ pointer-events:auto!important;
 #kulzzyHomePageContent.open{display:block!important}
 
 .kulzzyHomePageContentBox{width:100%;max-width:none;margin:0;padding:0 0 25px;background:transparent!important;color:white;overflow:visible!important;line-height:1.6;pointer-events:auto!important;touch-action:auto!important}
+
+/* CLICKABLE RADIO IMAGE AT THE TOP OF HOME */
+#kulzzyRadioHomeHeader{
+display:block;
+width:100%;
+margin:0;
+padding:0;
+border:0;
+background:transparent;
+cursor:pointer;
+line-height:0;
+touch-action:manipulation;
+pointer-events:auto;
+-webkit-tap-highlight-color:transparent;
+}
+#kulzzyRadioHomeHeader img{
+display:block;
+width:100%;
+height:auto;
+max-height:240px;
+object-fit:contain;
+object-position:center;
+pointer-events:none;
+}
 
 #kulzzyPullRefreshIndicator{position:fixed;top:calc(48px + var(--kulzzy-safe-top));left:50%;transform:translate(-50%,-12px);z-index:2147483647;display:block;padding:9px 17px;min-width:155px;border:1px solid rgba(255,215,0,.75);border-radius:30px;background:#07152f;color:#ffd700;font-size:12px;font-weight:bold;text-align:center;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
 #kulzzyPullRefreshIndicator.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
@@ -269,7 +291,6 @@ function navigateKulzzy(view){saveKulzzyHistory(view);renderKulzzyView(view);}
 /* BACK FUNCTION */
 function goBackInKulzzyNavigation(){
 
-/* RETURN TO MORE MENU WHEN A MORE PAGE IS CLOSED */
 if(kulzzyCurrentView?.type==="more-detail"){
 
 kulzzyViewStack=[{type:"section",section:"more"}];
@@ -294,7 +315,6 @@ notifyKulzzyParent();
 return true;
 }
 
-/* KEEP THE EXISTING VOTERS BACK BEHAVIOUR */
 kulzzyViewStack=[{type:"section",section:"voters"}];
 kulzzyCurrentView={type:"section",section:"voters"};
 
@@ -325,7 +345,6 @@ notifyKulzzyParent();
 return true;
 }
 
-/* FIXED MUSIC BACK MESSAGE */
 window.addEventListener("message",function(event){
 
 const detail=$("kulzzyVotersDetail");
@@ -481,18 +500,54 @@ overlay.appendChild(box);
 homeOverlayBuilt=true;
 }
 
+/* HOME DISPLAY WITH CLICKABLE RADIO HEADER */
 function renderHomeOverlay(){
 ensureHomeOverlay();
 const box=$("kulzzyHomeOverlayBox");
 if(!box)return;
+
 box.innerHTML="";
+
+/* RADIO IMAGE BUTTON */
+const headerButton=document.createElement("button");
+headerButton.type="button";
+headerButton.id="kulzzyRadioHomeHeader";
+headerButton.setAttribute("aria-label","Return to top of Home");
+
+const headerImage=document.createElement("img");
+headerImage.src="./kulzzy_radio_navigation_header.jpg";
+headerImage.alt="Kulzzy Radio";
+headerImage.loading="eager";
+headerImage.decoding="async";
+
+headerButton.appendChild(headerImage);
+
+headerButton.addEventListener("click",()=>{
+const overlay=$("kulzzyHomePageContent");
+if(overlay){
+overlay.scrollTo({
+top:0,
+behavior:"smooth"
+});
+}
+});
+
+box.appendChild(headerButton);
+
+/* EXISTING HOME CONTENT */
 if(homePageHTML){
-box.innerHTML=homePageHTML;
-executePublishedScripts(box);
-enablePublishedTouch(box);
+const content=document.createElement("div");
+content.id="kulzzyHomePublishedContent";
+content.innerHTML=homePageHTML;
+box.appendChild(content);
+executePublishedScripts(content);
+enablePublishedTouch(content);
+
 }else if(homePageLoaded){
 showPageStatus(box,"No published Home content was found. Check that the Home page is published in the admin panel.",()=>{
-homePageLoaded=false;homePageHTML="";openHomePage();
+homePageLoaded=false;
+homePageHTML="";
+openHomePage();
 });
 }
 }
@@ -842,7 +897,6 @@ showIndicator("Refreshing all pages...",0);
 window.setTimeout(()=>window.location.reload(),350);
 }
 
-/* FAST HOME-ONLY REFRESH */
 function refreshHomeContent(){
 if(refreshing)return;
 
