@@ -23,7 +23,11 @@ transform:none;
 width:100%;
 max-width:none;
 height:calc(42px + var(--kulzzy-safe-top));
-background:#07152f;
+background-color:#07152f;
+background-image:url("https://kulzzy.github.io/KRN-NAVIGATION-BAR/kulzzy_radio_navigation_header.jpg");
+background-size:100% 100%;
+background-position:center;
+background-repeat:no-repeat;
 border:0;
 border-bottom:1px solid rgba(255,215,0,.35);
 border-radius:0 0 11px 11px;
@@ -37,10 +41,10 @@ pointer-events:auto;
 touch-action:manipulation;
 }
 
-.kulzzyNavBtn{flex:1;width:100%;height:34px;border:0;background:transparent;color:white;font-size:11px;font-weight:bold;border-radius:8px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;pointer-events:auto;touch-action:manipulation;padding:0 2px}
-.kulzzyNavBtn:hover{background:rgba(255,215,0,.15);color:#ffd700}
-.kulzzyNavBtn:active{background:rgba(255,215,0,.25)}
-.kulzzyNavBtn.active{background:#ffd700;color:#07152f}
+.kulzzyNavBtn{flex:1;width:100%;height:34px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:white;font-size:11px;font-weight:bold;border-radius:0;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;pointer-events:auto;touch-action:manipulation;padding:0 2px;text-shadow:0 1px 3px #07152f,0 0 5px #07152f}
+.kulzzyNavBtn:hover{background:rgba(255,215,0,.12);color:#ffd700}
+.kulzzyNavBtn:active{background:rgba(255,215,0,.18)}
+.kulzzyNavBtn.active{background:transparent;color:#ffd700;text-shadow:0 1px 3px #07152f,0 0 5px #07152f}
 
 #kulzzyContent{position:relative;z-index:1;width:100%!important;max-width:none!important;min-width:0;margin:0!important;padding:calc(48px + var(--kulzzy-safe-top)) 0 30px!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:auto!important;overscroll-behavior-y:contain!important;overscroll-behavior-x:none!important;pointer-events:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 #kulzzyContent::-webkit-scrollbar{display:none}
@@ -131,30 +135,6 @@ pointer-events:auto!important;
 #kulzzyHomePageContent.open{display:block!important}
 
 .kulzzyHomePageContentBox{width:100%;max-width:none;margin:0;padding:0 0 25px;background:transparent!important;color:white;overflow:visible!important;line-height:1.6;pointer-events:auto!important;touch-action:auto!important}
-
-/* CLICKABLE RADIO IMAGE AT THE TOP OF HOME */
-#kulzzyRadioHomeHeader{
-display:block;
-width:100%;
-margin:0;
-padding:0;
-border:0;
-background:transparent;
-cursor:pointer;
-line-height:0;
-touch-action:manipulation;
-pointer-events:auto;
--webkit-tap-highlight-color:transparent;
-}
-#kulzzyRadioHomeHeader img{
-display:block;
-width:100%;
-height:auto;
-max-height:240px;
-object-fit:contain;
-object-position:center;
-pointer-events:none;
-}
 
 #kulzzyPullRefreshIndicator{position:fixed;top:calc(48px + var(--kulzzy-safe-top));left:50%;transform:translate(-50%,-12px);z-index:2147483647;display:block;padding:9px 17px;min-width:155px;border:1px solid rgba(255,215,0,.75);border-radius:30px;background:#07152f;color:#ffd700;font-size:12px;font-weight:bold;text-align:center;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
 #kulzzyPullRefreshIndicator.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
@@ -500,7 +480,7 @@ overlay.appendChild(box);
 homeOverlayBuilt=true;
 }
 
-/* HOME DISPLAY WITH CLICKABLE RADIO HEADER */
+/* HOME DISPLAY */
 function renderHomeOverlay(){
 ensureHomeOverlay();
 const box=$("kulzzyHomeOverlayBox");
@@ -508,33 +488,6 @@ if(!box)return;
 
 box.innerHTML="";
 
-/* RADIO IMAGE BUTTON */
-const headerButton=document.createElement("button");
-headerButton.type="button";
-headerButton.id="kulzzyRadioHomeHeader";
-headerButton.setAttribute("aria-label","Return to top of Home");
-
-const headerImage=document.createElement("img");
-headerImage.src="./kulzzy_radio_navigation_header.jpg";
-headerImage.alt="Kulzzy Radio";
-headerImage.loading="eager";
-headerImage.decoding="async";
-
-headerButton.appendChild(headerImage);
-
-headerButton.addEventListener("click",()=>{
-const overlay=$("kulzzyHomePageContent");
-if(overlay){
-overlay.scrollTo({
-top:0,
-behavior:"smooth"
-});
-}
-});
-
-box.appendChild(headerButton);
-
-/* EXISTING HOME CONTENT */
 if(homePageHTML){
 const content=document.createElement("div");
 content.id="kulzzyHomePublishedContent";
