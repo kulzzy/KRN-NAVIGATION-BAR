@@ -41,40 +41,23 @@ overflow:visible;
 }
 
 /* =========================================
-   PREMIUM NAVY BACKGROUND
-   ANIMATED RED LIGHT AROUND THE EDGES
+   FOUR TRADITIONAL RADIO FREQUENCY LINES
 ========================================= */
 
 #kulzzyNav::before{
 content:"";
 position:absolute;
-inset:0;
-border-radius:inherit;
-padding:2px;
-background:conic-gradient(
-from 0deg,
-transparent 0deg,
-transparent 265deg,
-rgba(255,0,0,.15) 285deg,
-#ff0000 305deg,
-#ff7777 315deg,
-#ff0000 325deg,
-rgba(255,0,0,.15) 340deg,
-transparent 355deg,
-transparent 360deg
-);
--webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
--webkit-mask-composite:xor;
-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-mask-composite:exclude;
-animation:kulzzyRedEdgeTravel 3s linear infinite;
+top:3px;
+left:50%;
+transform:translateX(-50%);
+width:66px;
+height:24px;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 24' fill='none' stroke='%23ffd700' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M27 20 Q32 15 37 20'/%3E%3Cpath d='M20 20 Q32 8 44 20'/%3E%3Cpath d='M13 20 Q32 2 51 20'/%3E%3Cpath d='M6 20 Q32 -5 58 20'/%3E%3C/svg%3E");
+background-repeat:no-repeat;
+background-position:center;
+background-size:contain;
 pointer-events:none;
 z-index:0;
-}
-
-@keyframes kulzzyRedEdgeTravel{
-from{transform:rotate(0deg)}
-to{transform:rotate(360deg)}
 }
 
 /* =========================================
